@@ -92,15 +92,19 @@ class TelegramBot {
 
     if (id) {
       ctx.reply(MESSAGES.letMeSendFoods);
-      const data = await this.userService.getPrograms(Number(id), ctx.from.id);
-      const availableFoods = normalizeProgramData(data);
-      ctx.answerCbQuery();
-      logger.info(JSON.stringify(availableFoods));
+      try {
+        const data = await this.userService.getPrograms(Number(id), ctx.from.id);
+        const availableFoods = normalizeProgramData(data);
 
-      if (isEmpty(availableFoods)) {
-        const { date } = data.payload.selfWeekPrograms[0][0];
-        const dateTime = new Date(date).getTime();
-        ctx.reply(MESSAGES.notFoundFoodForThisWeek, nextWeekKeyboard(id, dateTime));
+        if (isEmpty(availableFoods)) {
+          const { date } = data.payload.selfWeekPrograms[0][0];
+          const dateTime = new Date(date).getTime();
+          ctx.reply(MESSAGES.notFoundFoodForThisWeek, nextWeekKeyboard(id, dateTime));
+        }
+      } catch (err) {
+        logger.error(err);
+      } finally {
+        ctx.answerCbQuery();
       }
     }
   };
@@ -114,22 +118,27 @@ class TelegramBot {
     const time = ctx.match[2];
 
     const nextweekDate = formatDate(new Date(Number(time)));
-    const data = await this.userService.getPrograms(Number(id), ctx.from.id, nextweekDate);
+    try {
+      const data = await this.userService.getPrograms(Number(id), ctx.from.id, nextweekDate);
 
-    const availableFoods = normalizeProgramData(data);
+      const availableFoods = normalizeProgramData(data);
 
-    ctx.answerCbQuery();
-    if (isEmpty(availableFoods)) {
-      return ctx.reply(MESSAGES.sorryNotFoundAnyFood, backKeyboard);
+      if (isEmpty(availableFoods)) {
+        return ctx.reply(MESSAGES.sorryNotFoundAnyFood, backKeyboard);
+      }
+
+      const { btns, text } = formatReservation(availableFoods);
+
+      return ctx.reply(
+        `${data.messageFa}
+      ${text}`,
+        btns,
+      );
+    } catch (err) {
+      logger.error(err);
+    } finally {
+      ctx.answerCbQuery();
     }
-
-    const { btns, text } = formatReservation(availableFoods);
-
-    return ctx.reply(
-      `${data.messageFa}
-    ${text}`,
-      btns,
-    );
   };
 
   private handleReserve: MiddlewareFn<
@@ -163,11 +172,15 @@ class TelegramBot {
   };
 
   private checkIsLogin: MiddlewareFn<Context<Update>> = async ctx => {
-    const accessToken = await this.authService.getAccessToken(ctx.from.id);
-    if (accessToken) {
-      const userData = await this.userService.getUserById(ctx.from.id);
-      this.storage.removeState(ctx.from);
-      return ctx.reply(`کاربر ${userData.username} خوش اومدی!`, reserveListKeyboad);
+    try {
+      const accessToken = await this.authService.getAccessToken(ctx.from.id);
+      if (accessToken) {
+        const userData = await this.userService.getUserById(ctx.from.id);
+        this.storage.removeState(ctx.from);
+        return ctx.reply(`کاربر ${userData.username} خوش اومدی!`, reserveListKeyboad);
+      }
+    } catch (err) {
+      logger.error(err);
     }
     this.storage.setState(ctx.from, GET_USER_NAME);
     return ctx.reply(MESSAGES.getUsername, backKeyboard);
@@ -188,15 +201,16 @@ class TelegramBot {
   };
 
   private handleLostCode: MiddlewareFn<Context<Update>> = async (ctx, next) => {
-    const accessToken = await this.authService.getAccessToken(ctx.from.id);
-    if (!accessToken) {
-      this.storage.setState(ctx.from, GET_USER_NAME);
-      return ctx.reply(MESSAGES.getUsername, backKeyboard);
+    try {
+      const accessToken = await this.authService.getAccessToken(ctx.from.id);
+      if (!accessToken) {
+        this.storage.setState(ctx.from, GET_USER_NAME);
+        return ctx.reply(MESSAGES.getUsername, backKeyboard);
+      }
+    } catch (err) {
+      logger.error(err);
     }
     ctx.reply(MESSAGES.findFromBelow, lostCodeKeyboad);
-
-    // this.forgetCodeService.getLostCode(ctx.from.id);
-    // ctx.reply('data');
   };
 
   private handleReportBadCode: MiddlewareFn<Context<Update>> = async ctx => {
@@ -205,8 +219,10 @@ class TelegramBot {
   };
 
   private handleSendSelfsForLostCode: MiddlewareFn<Context<Update>> = async ctx => {
-    const { text, btns } = await this.userService.getSelfs(ctx.from.id, 'lostCode');
-    ctx.reply(text, btns);
+    try {
+      const { text, btns } = await this.userService.getSelfs(ctx.from.id, 'lostCode');
+      ctx.reply(text, btns);
+    } catch {}
   };
 
   private handleSelectedSelfForLostCode: MiddlewareFn<
@@ -253,15 +269,18 @@ class TelegramBot {
     const time = ctx.match[1];
 
     const nextweekDate = formatDate(new Date(Number(time)));
-    const data = await this.userService.getReserves(ctx.from.id, nextweekDate);
+    try {
+      const data = await this.userService.getReserves(ctx.from.id, nextweekDate);
+      const { btns, text } = normalizeReservation(data);
+      if (isEmpty(btns.reply_markup.inline_keyboard)) {
+        return ctx.reply(MESSAGES.sorryNotFoundAnyFood, backKeyboard);
+      }
 
-    const { btns, text } = normalizeReservation(data);
-    ctx.answerCbQuery();
-    if (isEmpty(btns.reply_markup.inline_keyboard)) {
-      return ctx.reply(MESSAGES.sorryNotFoundAnyFood, backKeyboard);
+      return ctx.reply(text, btns);
+    } catch {
+    } finally {
+      ctx.answerCbQuery();
     }
-
-    return ctx.reply(text, btns);
   };
 
   private handleAddLostCode: MiddlewareFn<
@@ -271,7 +290,7 @@ class TelegramBot {
   > = async ctx => {
     const selfId = Number(ctx.match[1]);
     const reserveId = Number(ctx.match[2]);
-    const date = new Date(Number(ctx.match[3]))
+    const date = new Date(Number(ctx.match[3]));
 
     try {
       const data = await this.forgetCodeService.addLostCode({ id: ctx.from.id, reserveId, selfId, date });
