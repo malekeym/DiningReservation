@@ -1,4 +1,3 @@
-import { hash, compare } from 'bcrypt';
 import fetch from 'node-fetch';
 import { HttpException } from '@exceptions/HttpException';
 import userModel from '@models/users.model';

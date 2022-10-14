@@ -5,15 +5,15 @@ import { User } from '@interfaces/users.interface';
 const UserSchema: Schema = new Schema({
   refreshToken: {
     type: String,
-    required: true,
+    require: true,
   },
   username: {
     type: String,
-    required: true,
+    require: true,
   },
   telegramId:{
     type: Number,
-    required:true
+    require:true
   },
 });
 

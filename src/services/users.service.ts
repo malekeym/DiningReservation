@@ -1,16 +1,16 @@
 import { Programs, ReservationResponse, Reservations } from '@/interfaces/users.interface';
-import { logger } from '@/utils/logger';
+
 import normalizeSelfList from '@/utils/normalize-self-list';
 import userModel from '@models/users.model';
 import fetch from 'node-fetch';
 import AuthService from './auth.service';
 
 class UserService {
-  public users = userModel;
+  private users = userModel;
 
   private authService = new AuthService();
 
-  public getSelfs = async (id: number) => {
+  public getSelfs = async (id: number, prefix?: string) => {
     const accessToken = await this.authService.getAccessToken(id);
 
     const data = await fetch('https://refahi.kntu.ac.ir/rest/selfs', {
@@ -19,13 +19,13 @@ class UserService {
       },
       method: 'GET',
     });
-    return normalizeSelfList(await data.json());
+    return normalizeSelfList(await data.json(), prefix);
   };
 
-  public getReserves = async (id: number): Promise<Reservations> => {
+  public getReserves = async (id: number, date: string = ''): Promise<Reservations> => {
     const accessToken = await this.authService.getAccessToken(id);
 
-    const data = await fetch('https://refahi.kntu.ac.ir/rest/reserves?weekStartDate=', {
+    const data = await fetch(`https://refahi.kntu.ac.ir/rest/reserves?weekStartDate=${date}`, {
       headers: {
         authorization: `Bearer ${accessToken}`,
       },
@@ -72,6 +72,11 @@ class UserService {
     });
 
     return response.json();
+  };
+
+  public getCurrentPorgram = async (selfId: number, id: number) => {
+    const programs = await this.getPrograms(selfId, id);
+    return programs.payload.selfWeekPrograms[0].find(({ daysDifferenceWithToday }) => daysDifferenceWithToday === 0);
   };
 
   public getUserById = (telegramId: number) => {

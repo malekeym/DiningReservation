@@ -35,12 +35,12 @@ export type ReservedData = {
   key: string;
 };
 
-type Reserve = {
+export type Reserve = {
   day: string;
   dayTranslated: string;
   date: string;
   dateJStr: string;
-  mealTypes: [
+  mealTypes?: [
     {
       mealTypeId: number;
       name: string;
@@ -160,4 +160,25 @@ export type ReservationResponse = {
   message: string;
   messageFa: string;
   messageResource: string;
+};
+
+export type ForgetCodeData = {
+  type: string;
+  code: number;
+  message: string;
+  messageFa: string;
+  messageResource: string;
+  payload: {
+    username: string;
+    deliverDate: string;
+    deliverTime: string;
+    self: string;
+    meal: string;
+    foodType: string;
+    foodName: string;
+    count: number;
+    remainCount: number;
+    valid: boolean;
+    forgotCardCode: string;
+  };
 };
