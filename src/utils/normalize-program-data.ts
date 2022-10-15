@@ -3,6 +3,9 @@ import { Programs, SelfProgram } from '@/interfaces/users.interface';
 import { Markup } from 'telegraf';
 
 const normalizeProgramData = (data: Programs) => {
+  if (!data.payload) {
+    return [];
+  }
   const selectedDay = data.payload.selfWeekPrograms
     .filter(([item], index) => {
       const { daysDifferenceWithToday, mealTypeId } = item;

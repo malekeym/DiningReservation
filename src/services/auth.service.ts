@@ -3,6 +3,7 @@ import { HttpException } from '@exceptions/HttpException';
 import userModel from '@models/users.model';
 import { ThirdpartyResponse } from '@/interfaces/auth.interface';
 import AuthRepository from '@/models/auth.model';
+import { logger } from '@/utils/logger';
 
 class AuthService {
   private users = userModel;
@@ -26,11 +27,13 @@ class AuthService {
     }
     const data: ThirdpartyResponse = (await response.json()) as ThirdpartyResponse;
     if (!this.users.find({ telegramId, username })) {
-      await this.users.create({
-        username,
-        telegramId,
-        refreshToken: data.refresh_token,
-      });
+      (
+        await this.users.create({
+          username,
+          telegramId,
+          refreshToken: data.refresh_token,
+        })
+      ).save();
     }
     await this.auth.client.set(telegramId.toString(), data.access_token);
     this.auth.client.expire(telegramId.toString(), data.expires_in);
@@ -38,6 +41,7 @@ class AuthService {
 
   public getAccessToken = async (telegramId: number) => {
     const accessToken = await this.getAccessTokenFromRedis(telegramId);
+    logger.info(accessToken);
     if (accessToken) {
       return accessToken;
     }

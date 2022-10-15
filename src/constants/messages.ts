@@ -2,7 +2,7 @@ const MESSAGES = {
   welcome: `اومدی غذا بقولی؟🍔`,
   getUsername: 'یوزر نیمتو بده بیاد =))',
   getPassword: 'پسوردتو بده بیاد =))',
-  reserve: '🍔 رزرو غذا',
+  reserve: 'رزرو غذا',
   back: 'بازگشت به منوی اول ➡️',
   error: 'اشتب زدی! دوباره انتخاب کن',
   letMeCheck: ' 🔎 هووم، بزار چک کنم...',

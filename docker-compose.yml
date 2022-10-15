@@ -30,11 +30,11 @@ services:
   #   depends_on:
   #     - mongo
   mongo:
-    image: mongo
+    image: mongo:4.4.1 
     container_name: db_mongo
     restart: always
     volumes:
-      - mongodata:/data/db
+      - mongodata:/data/db-test
     ports:
       - '27017:27017'
     networks:
