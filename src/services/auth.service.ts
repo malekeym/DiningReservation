@@ -26,14 +26,12 @@ class AuthService {
       throw new HttpException(401, 'Unauthorized');
     }
     const data: ThirdpartyResponse = (await response.json()) as ThirdpartyResponse;
-    if (!this.users.find({ telegramId, username })) {
-      (
-        await this.users.create({
-          username,
-          telegramId,
-          refreshToken: data.refresh_token,
-        })
-      ).save();
+    if (!(await this.users.findOne({ telegramId, username }))) {
+      await this.users.create({
+        username,
+        telegramId,
+        refreshToken: data.refresh_token,
+      });
     }
     await this.auth.client.set(telegramId.toString(), data.access_token);
     this.auth.client.expire(telegramId.toString(), data.expires_in);
