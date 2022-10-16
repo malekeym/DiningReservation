@@ -21,8 +21,13 @@ export const formatReservedButton = ({ mealTypes, dayTranslated }: Reserve, inde
   }
 
   const [meal] = mealTypes;
-  const dateTime = new Date(meal.reserve.programDate).getTime()
-  return [Markup.button.callback(`${index + 1}: ${dayTranslated}-${meal.reserve.foodNames}`, `lostCode-${meal.reserve.selfId}-${meal.reserve.id}-${dateTime}`)];
+  const dateTime = new Date(meal.reserve.programDate).getTime();
+  return [
+    Markup.button.callback(
+      `${index + 1}: ${dayTranslated}-${meal.reserve.foodNames}`,
+      `lostCode-${meal.reserve.selfId}-${meal.reserve.id}-${dateTime}`,
+    ),
+  ];
 };
 
 const normalizeReserved = (data: Reservations) => {

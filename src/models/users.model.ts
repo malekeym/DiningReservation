@@ -1,7 +1,6 @@
 import { model, Schema, Document } from 'mongoose';
 import { User } from '@interfaces/users.interface';
 
-
 const UserSchema: Schema = new Schema({
   refreshToken: {
     type: String,
@@ -11,9 +10,9 @@ const UserSchema: Schema = new Schema({
     type: String,
     require: true,
   },
-  telegramId:{
+  telegramId: {
     type: Number,
-    require:true
+    require: true,
   },
 });
 

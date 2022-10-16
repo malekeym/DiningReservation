@@ -30,7 +30,7 @@ const ForgetCodeSchema: Schema = new Schema({
   },
   usedBy: {
     type: Number,
-  }
+  },
 });
 
 const forgetCodeModel = model<ForgetCode>('ForgetCode', ForgetCodeSchema);

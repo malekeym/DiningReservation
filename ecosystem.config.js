@@ -8,7 +8,7 @@
   apps: [
     {
       name: 'prod', // pm2 start App name
-      script: 'dist/server.js',
+      script: 'node dist/server.js',
       exec_mode: 'cluster', // 'cluster' or 'fork'
       instance_var: 'INSTANCE_ID', // instance variable
       instances: 2, // pm2 instance count

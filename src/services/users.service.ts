@@ -22,7 +22,7 @@ class UserService {
     return normalizeSelfList(await data.json(), prefix);
   };
 
-  public getReserves = async (id: number, date: string = ''): Promise<Reservations> => {
+  public getReserves = async (id: number, date = ''): Promise<Reservations> => {
     const accessToken = await this.authService.getAccessToken(id);
 
     const data = await fetch(`https://refahi.kntu.ac.ir/rest/reserves?weekStartDate=${date}`, {

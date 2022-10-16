@@ -76,7 +76,7 @@ class TelegramBot {
     }
     if (state === GET_SUPPORT) {
       this.storage.removeState(ctx.from);
-      //@ts-expect-error
+      //@ts-expect-error we should why text not exist on context
       this.supportService.addToSupport({ id: ctx.from.id, code: ctx.from.text });
       return ctx.reply(MESSAGES.weWouldCheck, backKeyboard);
     }
@@ -234,7 +234,7 @@ class TelegramBot {
     try {
       const { date } = await this.userService.getCurrentPorgram(selfId, ctx.from.id);
       const currentDate = new Date(date);
-      const data = await this.forgetCodeService.getLostCode(selfId, currentDate);
+      const data = await this.forgetCodeService.getLostCode(selfId, currentDate, ctx.from.id);
       if (!data) {
         return ctx.reply(MESSAGES.notFoundLostCode);
       }
