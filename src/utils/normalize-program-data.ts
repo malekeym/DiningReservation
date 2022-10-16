@@ -20,6 +20,7 @@ export const formatReserveText = (data: SelfProgram, index: number) => {
   const foodData = data.programFoodTypes[0];
   return `
   ${MESSAGES.number}: ${index + 1}
+  ${MESSAGES.mealType}: ${data.mealTypeName}
   ${MESSAGES.foodName}: ${foodData.foodNames}
   ${MESSAGES.price}: ${foodData.price} ${MESSAGES.currency}
   ${MESSAGES.date}: ${new Date(data.date).toLocaleDateString('fa-IR')}

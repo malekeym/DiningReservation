@@ -101,6 +101,8 @@ class TelegramBot {
           const dateTime = new Date(date).getTime();
           ctx.reply(MESSAGES.notFoundFoodForThisWeek, nextWeekKeyboard(id, dateTime));
         }
+        const { text, btns } = formatReservation(availableFoods);
+        ctx.reply(text, btns);
       } catch (err) {
         logger.error(err);
       } finally {

@@ -34,6 +34,7 @@ const MESSAGES = {
   successFullLostCodeGet: 'به به ماشالا به بچه های دانشکده تون که به فکر همدیگه ان بیا اینم کد نوش جونت یادت باشه بعدا جبران کنی برای بقیه :)))',
   supportLostCode: 'شماره کد اشتباه رو وارد کن تا پیگیری کنم',
   weWouldCheck: 'حله یه بررسی میکنیم ببینیم چی بوده داستان :(',
+  mealType: 'وعده غذایی'
 };
 
 export default MESSAGES;
