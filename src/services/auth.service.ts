@@ -4,6 +4,7 @@ import userModel from '@models/users.model';
 import { ThirdpartyResponse } from '@/interfaces/auth.interface';
 import AuthRepository from '@/models/auth.model';
 import { logger } from '@/utils/logger';
+import { ONE_SECONDS } from '@/constants/time';
 
 class AuthService {
   private users = userModel;
@@ -56,7 +57,7 @@ class AuthService {
     if (response.status === 200) {
       const data = await response.json();
       await this.auth.client.set(telegramId.toString(), data.access_token);
-      this.auth.client.expire(telegramId.toString(), data.expires_in);
+      this.auth.client.expire(telegramId.toString(), data.expires_in * ONE_SECONDS);
 
       return data;
     }
