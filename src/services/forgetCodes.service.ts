@@ -33,8 +33,8 @@ class ForgetCodeService {
     return data;
   };
 
-  public getLostCode = (selfId: number, date: Date) => {
-    return this.forgetCodes.findOneAndUpdate({ selfId, date: date.toISOString(), used: false }, { used: true });
+  public getLostCode = (selfId: number, date: Date, telegramId: number) => {
+    return this.forgetCodes.findOneAndUpdate({ selfId, date: date.toISOString(), used: false }, { used: true, usedBy: telegramId });
   };
 
   public findAllCodes = (telegramId: number) => {

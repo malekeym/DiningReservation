@@ -40,7 +40,6 @@ class AuthService {
 
   public getAccessToken = async (telegramId: number) => {
     const accessToken = await this.getAccessTokenFromRedis(telegramId);
-    logger.info(accessToken);
     if (accessToken) {
       return accessToken;
     }

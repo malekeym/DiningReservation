@@ -28,6 +28,9 @@ const ForgetCodeSchema: Schema = new Schema({
     type: Boolean,
     require: true,
   },
+  usedBy: {
+    type: Number,
+  }
 });
 
 const forgetCodeModel = model<ForgetCode>('ForgetCode', ForgetCodeSchema);

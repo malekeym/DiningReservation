@@ -76,7 +76,7 @@ class UserService {
 
   public getCurrentPorgram = async (selfId: number, id: number) => {
     const programs = await this.getPrograms(selfId, id);
-    return programs.payload.selfWeekPrograms[0].find(({ daysDifferenceWithToday }) => daysDifferenceWithToday === 0);
+    return programs.payload.selfWeekPrograms.flat().find(({ daysDifferenceWithToday }) => daysDifferenceWithToday === 0);
   };
 
   public getUserById = (telegramId: number) => {
