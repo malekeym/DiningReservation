@@ -67,7 +67,7 @@ class TelegramBot {
         //@ts-expect-error TODO: check if text exist on type ctx.message or not
         await this.authService.loginToSamad(username, ctx.message.text, ctx.message.from.id);
         this.storage.removeState(ctx.from);
-        return ctx.reply(`کاربر ${username} خوش اومدی!`, reserveListKeyboad);
+        return ctx.reply(`👋🏻 سلام *${username}*\nبه ربات رزرو خودکار غذا خواجه نصیر خوش اومدی.\n\n🔻 یکی از دکمه های زیر را انتخاب کن.`, reserveListKeyboad);
       } catch (error) {
         logger.error(error);
         ctx.reply(MESSAGES.wrongUsernamrOrPassword, backKeyboard);
@@ -179,7 +179,7 @@ class TelegramBot {
       if (accessToken) {
         const userData = await this.userService.getUserById(ctx.from.id);
         this.storage.removeState(ctx.from);
-        return ctx.reply(`کاربر ${userData.username} خوش اومدی!`, reserveListKeyboad);
+        return ctx.reply(`👋🏻 سلام *${userData.username}*\nبه ربات رزرو خودکار غذا خواجه نصیر خوش اومدی.\n\n🔻 یکی از دکمه های زیر را انتخاب کن.`, reserveListKeyboad);
       }
     } catch (err) {
       logger.error(err);
