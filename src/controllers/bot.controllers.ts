@@ -35,7 +35,8 @@ class TelegramBot {
     bot.start(this.welcomeToBot);
     bot.hears(MESSAGES.reserve, this.checkIsLogin);
     bot.hears(MESSAGES.back, this.welcomeToBot);
-    bot.hears(MESSAGES.showReserveList, this.showReservation);
+    bot.hears(MESSAGES.thisWeekReserves, this.showReservation);
+    bot.hears(MESSAGES.nextWeekReserves, this.showNextWeekReservation);
     bot.hears(MESSAGES.reserveThisWeek, this.sendSelfs(true));
     bot.hears(MESSAGES.reserveNextWeek, this.sendSelfs(false));
     bot.action(/reserve-(\w+)-(\w+)/, this.handleReserve);
@@ -167,7 +168,7 @@ class TelegramBot {
     ctx.reply(MESSAGES.letMeSendSelfs);
     try {
       const { text, btns } = await this.userService.getSelfs(ctx.from.id, shouldReserveThisWeek ? '' : 'nextWeek');
-      
+
       ctx.reply(text, btns);
     } catch (err) {
       logger.error(err);
@@ -196,10 +197,27 @@ class TelegramBot {
     ctx.reply(MESSAGES.letMeCheck);
     try {
       const data = await this.userService.getReserves(ctx.from.id);
-      const me = data.payload.weekDays
+      const reserves = data.payload.weekDays
         .map(({ mealTypes, dayTranslated }) => mealTypes?.map(({ reserve }) => `${dayTranslated}:    ${reserve?.foodNames}`).filter(Boolean))
         .filter(Boolean);
-      return ctx.reply(JSON.stringify(me, null, 2).replace(/\[|\]|,/g, ''), backKeyboard);
+      return ctx.reply(JSON.stringify(reserves, null, 2).replace(/\[|\]|,/g, ''), backKeyboard);
+    } catch (err) {
+      logger.error(err);
+    }
+    ctx.reply(MESSAGES.notFound, backKeyboard);
+  };
+
+  private showNextWeekReservation: MiddlewareFn<Context<Update>> = async ctx => {
+    ctx.reply(MESSAGES.letMeCheck);
+    const date = (await this.userService.getReserves(ctx.from.id)).payload.weekDays[0].date;
+    const firstDayOfWeek = new Date(date).getTime();
+    const nextWeek = formatDate(new Date(firstDayOfWeek + ONE_WEEK));
+    try {
+      const data = await this.userService.getReserves(ctx.from.id, nextWeek);
+      const reserves = data.payload.weekDays
+        .map(({ mealTypes, dayTranslated }) => mealTypes?.map(({ reserve }) => `${dayTranslated}:    ${reserve?.foodNames}`).filter(Boolean))
+        .filter(Boolean);
+      return ctx.reply(JSON.stringify(reserves, null, 2).replace(/\[|\]|,/g, ''), backKeyboard);
     } catch (err) {
       logger.error(err);
     }
