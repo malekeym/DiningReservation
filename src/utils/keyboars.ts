@@ -19,6 +19,7 @@ export const reserveListKeyboad = Markup.keyboard([
 export const lostCodeKeyboad = Markup.keyboard([
   [Markup.button.callback(MESSAGES.getLostCode, ''), Markup.button.callback(MESSAGES.reportBadCode, '')],
   [Markup.button.callback(MESSAGES.shareLostCode, '')],
+  [Markup.button.callback(MESSAGES.back, '')],
 ]);
 
 export const nextWeekKeyboard = (id: string, today: number, prefix?: string) => {
