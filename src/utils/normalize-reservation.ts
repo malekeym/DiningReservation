@@ -30,9 +30,9 @@ export const formatReservedButton = ({ mealTypes, dayTranslated }: Reserve, inde
 
 const normalizeReserved = (data: Reservations) => {
   const tartgetWeeks = data.payload.weekDays.filter(({ mealTypes }: Reserve) => mealTypes && mealTypes[0].reserve.remainedCount > 0);
-  const texts = data.payload.weekDays.map(formatReservedText).filter(Boolean);
+  const texts = tartgetWeeks.map(formatReservedText).filter(Boolean);
 
-  const btns = data.payload.weekDays.map(formatReservedButton).filter(Boolean).flat();
+  const btns = tartgetWeeks.map(formatReservedButton).filter(Boolean).flat();
 
   return {
     text: `${data.messageFa}:\n${texts.join('\n')}`,

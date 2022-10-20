@@ -7,9 +7,10 @@ const normalizeProgramData = (data: Programs) => {
     return [];
   }
   const selectedDay = data.payload.selfWeekPrograms
-    .filter(([item], index) => {
-      const { daysDifferenceWithToday, mealTypeId } = item;
-      return data.payload.mealTypeReserveLimitMap[mealTypeId]?.days <= daysDifferenceWithToday && !data.payload.userWeekReserves[index];
+    .filter(([item]) => {
+      const { daysDifferenceWithToday, mealTypeId, programId } = item;
+      const isNotReserved = () => data.payload.userWeekReserves.findIndex(item => item.programId === programId) === -1;
+      return data.payload.mealTypeReserveLimitMap[mealTypeId]?.days <= daysDifferenceWithToday && isNotReserved();
     })
     .flat();
 
