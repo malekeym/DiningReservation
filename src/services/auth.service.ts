@@ -3,7 +3,7 @@ import { HttpException } from '@exceptions/HttpException';
 import userModel from '@models/users.model';
 import { ThirdpartyResponse } from '@/interfaces/auth.interface';
 import AuthRepository from '@/models/auth.model';
-import { logger } from '@/utils/logger';
+import { decrypt, encrypt } from '@/utils/crypto';
 import { ONE_SECONDS } from '@/constants/time';
 
 class AuthService {
@@ -14,7 +14,7 @@ class AuthService {
     return this.auth.client.get(telegramId.toString());
   };
 
-  public loginToSamad = async (username: string, password: string, telegramId: number) => {
+  public loginToSamad = async (username: string, password: string, telegramId: number): Promise<ThirdpartyResponse> => {
     const response = await fetch('https://refahi.kntu.ac.ir/oauth/token', {
       headers: {
         authorization: 'Basic c2FtYWQtbW9iaWxlOnNhbWFkLW1vYmlsZS1zZWNyZXQ=',
@@ -30,12 +30,15 @@ class AuthService {
     if (!(await this.users.findOne({ telegramId, username }))) {
       await this.users.create({
         username,
+        password: encrypt(password),
+        name: data.first_name,
         telegramId,
-        refreshToken: data.refresh_token,
+        uninversityId: 8, // hard-coded value for KNTU university
       });
     }
     await this.auth.client.set(telegramId.toString(), data.access_token);
     this.auth.client.expire(telegramId.toString(), data.expires_in);
+    return data;
   };
 
   public getAccessToken = async (telegramId: number) => {
@@ -44,22 +47,10 @@ class AuthService {
       return accessToken;
     }
 
-    const { refreshToken } = await this.users.findOne({ telegramId });
-    const response = await fetch('https://refahi.kntu.ac.ir/oauth/token', {
-      headers: {
-        authorization: 'Basic c2FtYWQtbW9iaWxlOnNhbWFkLW1vYmlsZS1zZWNyZXQ=',
-        'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-      },
-      body: `grant_type=refresh_token&refresh_token=${refreshToken}`,
-      method: 'POST',
-    });
-    if (response.status === 200) {
-      const data = await response.json();
-      await this.auth.client.set(telegramId.toString(), data.access_token);
-      this.auth.client.expire(telegramId.toString(), data.expires_in * ONE_SECONDS);
-
-      return data;
-    }
+    const { username, password: hashPassword } = await this.users.findOne({ telegramId });
+    const password = decrypt(hashPassword);
+    const { access_token } = await this.loginToSamad(username, password, telegramId);
+    return access_token;
   };
 }
 

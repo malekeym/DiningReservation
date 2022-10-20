@@ -14,6 +14,10 @@ const UserSchema: Schema = new Schema({
     type: Number,
     require: true,
   },
+  password: {
+    type: String,
+    require: true,
+  },
 });
 
 const userModel = model<User>('User', UserSchema);

@@ -1,6 +1,7 @@
 export interface User {
   refreshToken: string;
   username: string;
+  password: string;
   telegramId: number;
   _id: string;
 }
