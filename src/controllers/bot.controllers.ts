@@ -1,5 +1,5 @@
-import MESSAGES from '@/constants/messages';
-import { GET_PASSWORD, GET_SUPPORT, GET_USER_NAME, LOADING } from '@/constants/states';
+import MESSAGES, { DAYS } from '@/constants/messages';
+import { AUTO_RESERVE, GET_PASSWORD, GET_SUPPORT, GET_USER_NAME, LOADING } from '@/constants/states';
 import { ONE_WEEK } from '@/constants/time';
 import AuthService from '@/services/auth.service';
 import ForgetCodeService from '@/services/forgetCodes.service';
@@ -7,7 +7,15 @@ import SupportService from '@/services/suuport.service';
 import UserService from '@/services/users.service';
 import { formatDate } from '@/utils/format';
 import Storage from '@/utils/in-memory-storage';
-import { backKeyboard, lostCodeKeyboad, nextWeekKeyboard, mainKeyboard, reserveListKeyboad } from '@/utils/keyboars';
+import {
+  autoReserveKeyboard,
+  backKeyboard,
+  lostCodeKeyboad,
+  nextWeekKeyboard,
+  mainKeyboard,
+  reserveListKeyboad,
+  dayInlineKeyboard,
+} from '@/utils/keyboars';
 import { logger } from '@/utils/logger';
 import { normalizeLostCodeMessage, getLostCodeSuccess } from '@/utils/normalize-lost-code';
 import normalizeProgramData, { formatReservation } from '@/utils/normalize-program-data';
@@ -36,6 +44,11 @@ class TelegramBot {
     bot.hears(MESSAGES.logout, this.handleLogout);
     bot.hears(MESSAGES.reserve, this.checkIsLogin);
     bot.hears(MESSAGES.back, this.welcomeToBot);
+    bot.hears(MESSAGES.autoReserve, this.handleAutoReserve);
+    bot.hears(MESSAGES.activateAutoReserve, this.handleActivateAutoReserve);
+    bot.hears(MESSAGES.deActivateAutoReserve, this.handleDeActivateAutoReserve);
+    bot.hears(MESSAGES.changeAutoReserveDays, this.changeAutoReserveSetting);
+    bot.action(/(\d)-day/, this.handleAddDayToAutoReserve);
     bot.hears(MESSAGES.thisWeekReserves, this.showReservation);
     bot.hears(MESSAGES.nextWeekReserves, this.showNextWeekReservation);
     bot.hears(MESSAGES.reserveThisWeek, this.sendSelfs(true));
@@ -59,7 +72,7 @@ class TelegramBot {
       await this.userService.logout(ctx.from.id);
       ctx.reply(MESSAGES.successFullyLogout, mainKeyboard);
     } catch {
-      ctx.reply(MESSAGES.unsuccessFullyLogout, mainKeyboard);
+      ctx.reply(MESSAGES.unsuccessFullOperation, mainKeyboard);
     }
   };
 
@@ -96,6 +109,44 @@ class TelegramBot {
       return ctx.reply(MESSAGES.weWouldCheck, backKeyboard);
     }
     ctx.reply(MESSAGES.error, backKeyboard);
+  };
+
+  private handleAutoReserve: MiddlewareFn<Context<Update>> = async ctx => {
+    const { text, data } = await this.userService.getAutoReserveStatus(ctx.from.id);
+    ctx.reply(text, autoReserveKeyboard(data.autoReserve));
+  };
+
+  private handleActivateAutoReserve: MiddlewareFn<Context<Update>> = async ctx => {
+    try {
+      await this.userService.changeAutoReserveStatus(ctx.from.id, true);
+      ctx.reply(MESSAGES.activateSuccessFully, autoReserveKeyboard(true));
+    } catch {
+      ctx.reply(MESSAGES.unsuccessFullOperation, mainKeyboard);
+    }
+  };
+
+  private handleDeActivateAutoReserve: MiddlewareFn<Context<Update>> = async ctx => {
+    try {
+      await this.userService.changeAutoReserveStatus(ctx.from.id, false);
+      ctx.reply(MESSAGES.deActivateSuccessFully, autoReserveKeyboard(false));
+    } catch {
+      ctx.reply(MESSAGES.unsuccessFullOperation, mainKeyboard);
+    }
+  };
+
+  private changeAutoReserveSetting: MiddlewareFn<Context<Update>> = async ctx => {
+    ctx.reply(MESSAGES.chooseDays, dayInlineKeyboard);
+  };
+
+  private handleAddDayToAutoReserve: MiddlewareFn<
+    Context<Update> & {
+      match: RegExpExecArray;
+    }
+  > = async ctx => {
+    const dayIndex = ctx.match[1];
+    const { isAdded } = await this.userService.updateAutoReserveDay(ctx.from.id, Number(dayIndex));
+    ctx.answerCbQuery()
+    ctx.reply(`${DAYS[dayIndex]} ${isAdded ? MESSAGES.isAdded : MESSAGES.isRemoved}`);
   };
 
   private selfCheck: MiddlewareFn<

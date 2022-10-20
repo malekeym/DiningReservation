@@ -1,4 +1,5 @@
 import { Programs, ReservationResponse, Reservations } from '@/interfaces/users.interface';
+import { formatAutoReserveData } from '@/utils/format-auto-reserve-data';
 
 import normalizeSelfList from '@/utils/normalize-self-list';
 import userModel from '@models/users.model';
@@ -85,6 +86,30 @@ class UserService {
 
   public logout = (telegramId: number) => {
     return Promise.all([this.users.deleteOne({ telegramId }), this.authService.removeAccessTokenFromRedis(telegramId)]);
+  };
+
+  public getAutoReserveStatus = async (telegramId: number) => {
+    const userData = await this.users.findOne({ telegramId });
+    if (!userData) {
+      throw new Error('unAuthorized');
+    }
+    return { data: userData, text: formatAutoReserveData(userData) };
+  };
+
+  public changeAutoReserveStatus = async (telegramId: number, status: boolean) => {
+    await this.users.updateOne({ telegramId }, { autoReserve: status });
+  };
+
+  public updateAutoReserveDay = async (telegramId: number, day: number) => {
+    const { autoReservesDay = [], ...rest } = await this.users.findOne({ telegramId });
+    const days = new Set([...autoReservesDay]);
+    if (days.has(day)) {
+      days.delete(day);
+    } else {
+      days.add(day);
+    }
+    const data = await this.users.updateOne({ telegramId }, { autoReservesDay: Array.from(days) }).exec();
+    return { data, isAdded: days.has(day) };
   };
 }
 

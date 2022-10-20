@@ -5,7 +5,7 @@ export interface User {
   username: string;
   password: string;
   autoReserve?: boolean;
-  autoReserveDay?: number[];
+  autoReservesDay?: number[];
   _id: string;
 }
 
