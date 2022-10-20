@@ -19,7 +19,7 @@ import {
 import { logger } from '@/utils/logger';
 import { normalizeLostCodeMessage, getLostCodeSuccess } from '@/utils/normalize-lost-code';
 import normalizeProgramData, { formatReservation } from '@/utils/normalize-program-data';
-import normalizeReservation from '@/utils/normalize-reservation';
+import normalizeReservation, { formatReservedText } from '@/utils/normalize-reservation';
 import { isEmpty } from '@/utils/util';
 import type { Context, MiddlewareFn, Telegraf } from 'telegraf';
 import { Update } from 'telegraf/typings/core/types/typegram';
@@ -45,6 +45,7 @@ class TelegramBot {
     bot.hears(MESSAGES.reserve, this.checkIsLogin);
     bot.hears(MESSAGES.back, this.welcomeToBot);
     bot.hears(MESSAGES.autoReserve, this.handleAutoReserve);
+    bot.hears(MESSAGES.showAutoReserveStatus, this.handleAutoReserve);
     bot.hears(MESSAGES.activateAutoReserve, this.handleActivateAutoReserve);
     bot.hears(MESSAGES.deActivateAutoReserve, this.handleDeActivateAutoReserve);
     bot.hears(MESSAGES.changeAutoReserveDays, this.changeAutoReserveSetting);
@@ -111,9 +112,17 @@ class TelegramBot {
     ctx.reply(MESSAGES.error, backKeyboard);
   };
 
-  private handleAutoReserve: MiddlewareFn<Context<Update>> = async ctx => {
-    const { text, data } = await this.userService.getAutoReserveStatus(ctx.from.id);
-    ctx.reply(text, autoReserveKeyboard(data.autoReserve));
+  private handleAutoReserve: MiddlewareFn<Context<Update>> = async (ctx, next) => {
+    try {
+      const { text, data } = await this.userService.getAutoReserveStatus(ctx.from.id);
+      ctx.reply(text, autoReserveKeyboard(data.autoReserve));
+    } catch (err) {
+      if (err.message === 'unAuthorized') {
+        ctx.reply(MESSAGES.youShouldLoginFirst);
+        return this.checkIsLogin(ctx, next);
+      }
+      ctx.reply(MESSAGES.unsuccessFullOperation);
+    }
   };
 
   private handleActivateAutoReserve: MiddlewareFn<Context<Update>> = async ctx => {
@@ -145,7 +154,7 @@ class TelegramBot {
   > = async ctx => {
     const dayIndex = ctx.match[1];
     const { isAdded } = await this.userService.updateAutoReserveDay(ctx.from.id, Number(dayIndex));
-    ctx.answerCbQuery()
+    ctx.answerCbQuery();
     ctx.reply(`${DAYS[dayIndex]} ${isAdded ? MESSAGES.isAdded : MESSAGES.isRemoved}`);
   };
 
@@ -242,8 +251,8 @@ class TelegramBot {
       if (accessToken) {
         const userData = await this.userService.getUserById(ctx.from.id);
         this.storage.removeState(ctx.from);
-        return ctx.reply(
-          `👋🏻 سلام *${userData.username}*\nبه ربات رزرو خودکار غذا خواجه نصیر خوش اومدی.\n\n🔻 یکی از دکمه های زیر را انتخاب کن.`,
+        return ctx.replyWithMarkdown(
+          `👋🏻 سلام *${userData.name}*\nبه ربات رزرو خودکار غذا خواجه نصیر خوش اومدی.\n\n🔻 یکی از دکمه های زیر را انتخاب کن.`,
           reserveListKeyboad,
         );
       }
@@ -258,10 +267,9 @@ class TelegramBot {
     ctx.reply(MESSAGES.letMeCheck);
     try {
       const data = await this.userService.getReserves(ctx.from.id);
-      const reserves = data.payload.weekDays
-        .map(({ mealTypes, dayTranslated }) => mealTypes?.map(({ reserve }) => `${dayTranslated}:    ${reserve?.foodNames}`).filter(Boolean))
-        .filter(Boolean);
-      return ctx.reply(JSON.stringify(reserves, null, 2).replace(/\[|\]|,/g, ''), backKeyboard);
+      const reserves = data.payload.weekDays.map(formatReservedText);
+      console.log(reserves);
+      return ctx.reply(reserves.join('\n'), backKeyboard);
     } catch (err) {
       logger.error(err);
     }
@@ -275,10 +283,8 @@ class TelegramBot {
     const nextWeek = formatDate(new Date(firstDayOfWeek + ONE_WEEK));
     try {
       const data = await this.userService.getReserves(ctx.from.id, nextWeek);
-      const reserves = data.payload.weekDays
-        .map(({ mealTypes, dayTranslated }) => mealTypes?.map(({ reserve }) => `${dayTranslated}:    ${reserve?.foodNames}`).filter(Boolean))
-        .filter(Boolean);
-      return ctx.reply(JSON.stringify(reserves, null, 2).replace(/\[|\]|,/g, ''), backKeyboard);
+      const reserves = data.payload.weekDays.map(formatReservedText);
+      return ctx.reply(reserves.join('\n'), backKeyboard);
     } catch (err) {
       logger.error(err);
     }

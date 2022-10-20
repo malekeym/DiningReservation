@@ -57,6 +57,8 @@ const MESSAGES = {
   chooseDays: 'روزهای مدنظر خود را از منو زیر انتخاب کنید',
   isAdded: 'با موفقیت اضافه شد',
   isRemoved: 'حذف شد',
+  showAutoReserveStatus: 'نمایش اطلاعات رزرو خودکار',
+  youShouldLoginFirst: 'باید اول وارد شوید...',
 };
 
 export const DAYS = ['شنبه', 'یک شنبه', 'دو شنبه', 'سه شنبه', 'چهارشنبه', 'پنج شنبه', 'جمعه'];

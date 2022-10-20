@@ -101,7 +101,7 @@ class UserService {
   };
 
   public updateAutoReserveDay = async (telegramId: number, day: number) => {
-    const { autoReservesDay = [], ...rest } = await this.users.findOne({ telegramId });
+    const { autoReservesDay = [] } = await this.users.findOne({ telegramId });
     const days = new Set([...autoReservesDay]);
     if (days.has(day)) {
       days.delete(day);

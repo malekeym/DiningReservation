@@ -3,12 +3,11 @@ import { Reservations, Reserve } from '@/interfaces/users.interface';
 import { Markup } from 'telegraf';
 
 export const formatReservedText = ({ mealTypes, dayTranslated, dateJStr }: Reserve, index: number) => {
-  if (!mealTypes || mealTypes[0].reserve.remainedCount <= 0) {
+  if (!mealTypes) {
     return;
   }
   const [meal] = mealTypes;
   return `
-    ${MESSAGES.number}: ${index + 1}
     ${MESSAGES.foodName}: ${meal.reserve.foodNames}
     ${MESSAGES.selfName}: ${meal.reserve.selfCodeName}
     ${MESSAGES.day}: ${dayTranslated} ${dateJStr}
@@ -16,10 +15,9 @@ export const formatReservedText = ({ mealTypes, dayTranslated, dateJStr }: Reser
 };
 
 export const formatReservedButton = ({ mealTypes, dayTranslated }: Reserve, index: number) => {
-  if (!mealTypes || mealTypes[0].reserve.remainedCount <= 0) {
+  if (!mealTypes) {
     return;
   }
-
   const [meal] = mealTypes;
   const dateTime = new Date(meal.reserve.programDate).getTime();
   return [
@@ -31,6 +29,7 @@ export const formatReservedButton = ({ mealTypes, dayTranslated }: Reserve, inde
 };
 
 const normalizeReserved = (data: Reservations) => {
+  const tartgetWeeks = data.payload.weekDays.filter(({ mealTypes }: Reserve) => mealTypes && mealTypes[0].reserve.remainedCount > 0);
   const texts = data.payload.weekDays.map(formatReservedText).filter(Boolean);
 
   const btns = data.payload.weekDays.map(formatReservedButton).filter(Boolean).flat();

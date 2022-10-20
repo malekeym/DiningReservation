@@ -33,6 +33,7 @@ export const autoReserveKeyboard = (isActive: boolean) =>
       Markup.button.callback(MESSAGES.changeAutoReserveDays, ''),
       Markup.button.callback(isActive ? MESSAGES.deActivateAutoReserve : MESSAGES.activateAutoReserve, ''),
     ],
+    [Markup.button.callback(MESSAGES.showAutoReserveStatus, '')],
     [Markup.button.callback(MESSAGES.back, '')],
   ]);
 
