@@ -6,7 +6,7 @@ import SupportService from '@/services/suuport.service';
 import UserService from '@/services/users.service';
 import { formatDate } from '@/utils/format';
 import Storage from '@/utils/in-memory-storage';
-import { backKeyboard, lostCodeKeyboad, nextWeekKeyboard, reserveKeyboard, reserveListKeyboad } from '@/utils/keyboars';
+import { backKeyboard, lostCodeKeyboad, nextWeekKeyboard, mainKeyboard, reserveListKeyboad } from '@/utils/keyboars';
 import { logger } from '@/utils/logger';
 import { normalizeLostCodeMessage, getLostCodeSuccess } from '@/utils/normalize-lost-code';
 import normalizeProgramData, { formatReservation } from '@/utils/normalize-program-data';
@@ -51,7 +51,7 @@ class TelegramBot {
     bot.on('message', this.handleLoginCheck);
   }
 
-  private welcomeToBot: MiddlewareFn<Context<Update>> = ctx => ctx.reply(MESSAGES.welcome, reserveKeyboard);
+  private welcomeToBot: MiddlewareFn<Context<Update>> = ctx => ctx.reply(MESSAGES.welcome, mainKeyboard);
 
   private handleLoginCheck: MiddlewareFn<Context<Update>> = async ctx => {
     const { state, username } = this.storage.getState(ctx.from);

@@ -36,7 +36,14 @@ const MESSAGES = {
   successFullLostCodeGet: 'به به ماشالا به بچه های دانشکده تون که به فکر همدیگه ان بیا اینم کد نوش جونت یادت باشه بعدا جبران کنی برای بقیه :)))',
   supportLostCode: 'شماره کد اشتباه رو وارد کن تا پیگیری کنم',
   weWouldCheck: 'کد فراموشی غلط رو گرفتم. در اولین فرصت بررسی میکنم ...',
-  mealType: 'وعده غذایی'
+  mealType: 'وعده غذایی',
+  setAutoReserve: 'تنظیم رزرو خودکار',
+  thisWeekReserves: 'رزرو های این هفته',
+  nextWeekReserves: 'رزرو های هفته بعد',
+  changeSecondPass: 'تغییر رمز دوم',
+  logout: 'خروج',
+  reserveThisWeek:'رزرو غدای هفته جاری',
+  reserveNextWeek: 'رزرو غذای هفته بعد'
 };
 
 export default MESSAGES;

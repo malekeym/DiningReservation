@@ -2,12 +2,17 @@ import MESSAGES from '@/constants/messages';
 import { ONE_WEEK } from '@/constants/time';
 import { Markup } from 'telegraf';
 
-export const reserveKeyboard = Markup.keyboard([[Markup.button.callback(MESSAGES.lostCode, ''), Markup.button.callback(MESSAGES.reserve, '')]]);
+export const mainKeyboard = Markup.keyboard([
+  [Markup.button.callback(MESSAGES.setAutoReserve, ''), Markup.button.callback(MESSAGES.reserve, '')],
+  [Markup.button.callback(MESSAGES.lostCode, ''), Markup.button.callback(MESSAGES.changeSecondPass, '')],
+  [Markup.button.callback(MESSAGES.thisWeekReserves, ''), Markup.button.callback(MESSAGES.nextWeekReserves, '')],
+  [Markup.button.callback(MESSAGES.logout, '')]
+]);
 
 export const backKeyboard = Markup.keyboard([Markup.button.callback(MESSAGES.back, '')]);
 
 export const reserveListKeyboad = Markup.keyboard([
-  [Markup.button.callback(MESSAGES.showReserveList, ''), Markup.button.callback(MESSAGES.newReserve, '')],
+  [Markup.button.callback(MESSAGES.thisWeekReserves, ''), Markup.button.callback(MESSAGES.nextWeekReserves, '')],
 ]);
 
 export const lostCodeKeyboad = Markup.keyboard([
