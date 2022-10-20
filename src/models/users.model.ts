@@ -10,7 +10,7 @@ const UserSchema: Schema = new Schema({
     type: String,
   },
   uninversityId: {
-    type: String,
+    type: Number,
     require: true,
   },
   username: {

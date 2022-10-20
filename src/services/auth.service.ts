@@ -28,6 +28,7 @@ class AuthService {
     }
     const data: ThirdpartyResponse = (await response.json()) as ThirdpartyResponse;
     if (!(await this.users.findOne({ telegramId, username }))) {
+
       await this.users.create({
         username,
         password: encrypt(password),

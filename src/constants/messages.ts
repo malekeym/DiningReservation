@@ -9,7 +9,6 @@ const MESSAGES = {
   wrongUsernamrOrPassword: '❌ *نام کاربری یا رمز رو اشتباه فرستادی*',
   showReserveList: 'رزرو های این هفته',
   showNextWeekReserveList: 'رزرو های هفته بعد',
-  newReserve: 'رزرو جدید',
   autoReserve: 'تنظیم رزرو خودکار',
   notFound: 'چیزی یافت نشد !',
   letMeSendSelfs: 'بزار لیست سلف ها رو برات بفرستم که انتخاب کنی...',
@@ -38,12 +37,12 @@ const MESSAGES = {
   weWouldCheck: 'کد فراموشی غلط رو گرفتم. در اولین فرصت بررسی میکنم ...',
   mealType: 'وعده غذایی',
   setAutoReserve: 'تنظیم رزرو خودکار',
-  thisWeekReserves: 'رزرو های این هفته',
-  nextWeekReserves: 'رزرو های هفته بعد',
+  reserveThisWeek: 'رزرو غذای این هفته',
+  reserveNextWeek: 'رزرو غذای هفته بعد',
   changeSecondPass: 'تغییر رمز دوم',
   logout: 'خروج',
-  reserveThisWeek:'رزرو غدای هفته جاری',
-  reserveNextWeek: 'رزرو غذای هفته بعد'
+  thisWeekReserves: 'لیست رزرو های این هفته',
+  nextWeekReserves: 'لیست رزرو های هفته بعد',
 };
 
 export default MESSAGES;

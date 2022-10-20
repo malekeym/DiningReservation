@@ -6,8 +6,7 @@ const secretKey = SECRET_SALT;
 const iv = INITIALIZATION_VECTOR;
 
 const encrypt = (text: string): string => {
-
-  const cipher = crypto.createCipheriv(algorithm, secretKey, iv);
+  const cipher = crypto.createCipheriv(algorithm, secretKey, Buffer.from(iv, 'hex'));
 
   const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
 
@@ -15,14 +14,11 @@ const encrypt = (text: string): string => {
 };
 
 const decrypt = (hash: string): string => {
-  const decipher = crypto.createDecipheriv(algorithm, secretKey, iv);
+  const decipher = crypto.createDecipheriv(algorithm, secretKey, Buffer.from(iv, 'hex'));
 
   const decrpyted = Buffer.concat([decipher.update(Buffer.from(hash, 'hex')), decipher.final()]);
 
   return decrpyted.toString();
 };
 
-export {
-  encrypt,
-  decrypt,
-};
+export { encrypt, decrypt };

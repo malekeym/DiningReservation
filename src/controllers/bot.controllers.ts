@@ -1,5 +1,6 @@
 import MESSAGES from '@/constants/messages';
 import { GET_PASSWORD, GET_SUPPORT, GET_USER_NAME, LOADING } from '@/constants/states';
+import { ONE_WEEK } from '@/constants/time';
 import AuthService from '@/services/auth.service';
 import ForgetCodeService from '@/services/forgetCodes.service';
 import SupportService from '@/services/suuport.service';
@@ -14,7 +15,6 @@ import normalizeReservation from '@/utils/normalize-reservation';
 import { isEmpty } from '@/utils/util';
 import type { Context, MiddlewareFn, Telegraf } from 'telegraf';
 import { Update } from 'telegraf/typings/core/types/typegram';
-import { keyboard } from 'telegraf/typings/markup';
 
 class TelegramBot {
   private bot: Telegraf;
@@ -36,9 +36,10 @@ class TelegramBot {
     bot.hears(MESSAGES.reserve, this.checkIsLogin);
     bot.hears(MESSAGES.back, this.welcomeToBot);
     bot.hears(MESSAGES.showReserveList, this.showReservation);
-    bot.hears(MESSAGES.newReserve, this.sendSelfs);
+    bot.hears(MESSAGES.reserveThisWeek, this.sendSelfs(true));
+    bot.hears(MESSAGES.reserveNextWeek, this.sendSelfs(false));
     bot.action(/reserve-(\w+)-(\w+)/, this.handleReserve);
-    bot.action(/nextWeek-(\w+)-(\w+)/, this.handleNextWeekSelection);
+    bot.action(/nextWeek-self-(\w+)/, this.handleNextWeekSelection);
     bot.action(/^self-(\w+)/, this.selfCheck);
     bot.hears(MESSAGES.lostCode, this.handleLostCode);
     bot.hears(MESSAGES.getLostCode, this.handleSendSelfsForLostCode);
@@ -67,7 +68,10 @@ class TelegramBot {
         //@ts-expect-error TODO: check if text exist on type ctx.message or not
         await this.authService.loginToSamad(username, ctx.message.text, ctx.message.from.id);
         this.storage.removeState(ctx.from);
-        return ctx.reply(`👋🏻 سلام *${username}*\nبه ربات رزرو خودکار غذا خواجه نصیر خوش اومدی.\n\n🔻 یکی از دکمه های زیر را انتخاب کن.`, reserveListKeyboad);
+        return ctx.reply(
+          `👋🏻 سلام *${username}*\nبه ربات رزرو خودکار غذا خواجه نصیر خوش اومدی.\n\n🔻 یکی از دکمه های زیر را انتخاب کن.`,
+          reserveListKeyboad,
+        );
       } catch (error) {
         logger.error(error);
         ctx.reply(MESSAGES.wrongUsernamrOrPassword, backKeyboard);
@@ -95,11 +99,8 @@ class TelegramBot {
       try {
         const data = await this.userService.getPrograms(Number(id), ctx.from.id);
         const availableFoods = normalizeProgramData(data);
-
         if (isEmpty(availableFoods)) {
-          const { date } = data.payload.selfWeekPrograms[0][0];
-          const dateTime = new Date(date).getTime();
-          ctx.reply(MESSAGES.notFoundFoodForThisWeek, nextWeekKeyboard(id, dateTime));
+          return ctx.reply(MESSAGES.notFoundFoodForThisWeek);
         }
         const { text, btns } = formatReservation(availableFoods);
         ctx.reply(text, btns);
@@ -117,9 +118,9 @@ class TelegramBot {
     }
   > = async (ctx, next) => {
     const id = Number(ctx.match[1]);
-    const time = ctx.match[2];
-
-    const nextweekDate = formatDate(new Date(Number(time)));
+    const { date } = (await this.userService.getPrograms(Number(id), ctx.from.id)).payload.selfWeekPrograms[0][0];
+    const firstDayOfWeek = new Date(date).getTime();
+    const nextweekDate = formatDate(new Date(firstDayOfWeek + ONE_WEEK));
     try {
       const data = await this.userService.getPrograms(Number(id), ctx.from.id, nextweekDate);
 
@@ -162,11 +163,11 @@ class TelegramBot {
     }
   };
 
-  private sendSelfs: MiddlewareFn<Context<Update>> = async ctx => {
+  private sendSelfs: (shouldReserveThisWeek: boolean) => MiddlewareFn<Context<Update>> = shouldReserveThisWeek => async ctx => {
     ctx.reply(MESSAGES.letMeSendSelfs);
     try {
-      const { text, btns } = await this.userService.getSelfs(ctx.from.id);
-
+      const { text, btns } = await this.userService.getSelfs(ctx.from.id, shouldReserveThisWeek ? '' : 'nextWeek');
+      
       ctx.reply(text, btns);
     } catch (err) {
       logger.error(err);
@@ -179,7 +180,10 @@ class TelegramBot {
       if (accessToken) {
         const userData = await this.userService.getUserById(ctx.from.id);
         this.storage.removeState(ctx.from);
-        return ctx.reply(`👋🏻 سلام *${userData.username}*\nبه ربات رزرو خودکار غذا خواجه نصیر خوش اومدی.\n\n🔻 یکی از دکمه های زیر را انتخاب کن.`, reserveListKeyboad);
+        return ctx.reply(
+          `👋🏻 سلام *${userData.username}*\nبه ربات رزرو خودکار غذا خواجه نصیر خوش اومدی.\n\n🔻 یکی از دکمه های زیر را انتخاب کن.`,
+          reserveListKeyboad,
+        );
       }
     } catch (err) {
       logger.error(err);
