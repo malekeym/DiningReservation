@@ -5,15 +5,15 @@ import { Markup } from 'telegraf';
 export const mainKeyboard = Markup.keyboard([
   [Markup.button.callback(MESSAGES.setAutoReserve, ''), Markup.button.callback(MESSAGES.reserve, '')],
   [Markup.button.callback(MESSAGES.lostCode, ''), Markup.button.callback(MESSAGES.changeSecondPass, '')],
-  [Markup.button.callback(MESSAGES.thisWeekReserves, ''), Markup.button.callback(MESSAGES.nextWeekReserves, '')],
-  [Markup.button.callback(MESSAGES.logout, '')]
+  [Markup.button.callback(MESSAGES.nextWeekReserves, ''), Markup.button.callback(MESSAGES.thisWeekReserves, '')],
+  [Markup.button.callback(MESSAGES.logout, '')],
 ]);
 
 export const backKeyboard = Markup.keyboard([Markup.button.callback(MESSAGES.back, '')]);
 
 export const reserveListKeyboad = Markup.keyboard([
   [Markup.button.callback(MESSAGES.reserveThisWeek, ''), Markup.button.callback(MESSAGES.reserveNextWeek, '')],
-  [Markup.button.callback(MESSAGES.thisWeekReserves, ''), Markup.button.callback(MESSAGES.nextWeekReserves, '')],
+  [Markup.button.callback(MESSAGES.back, '')],
 ]);
 
 export const lostCodeKeyboad = Markup.keyboard([
