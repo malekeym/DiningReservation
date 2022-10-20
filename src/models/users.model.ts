@@ -1,8 +1,15 @@
-import { model, Schema, Document } from 'mongoose';
+import { model, Schema } from 'mongoose';
 import { User } from '@interfaces/users.interface';
 
 const UserSchema: Schema = new Schema({
-  refreshToken: {
+  telegramId: {
+    type: Number,
+    require: true,
+  },
+  name: {
+    type: String,
+  },
+  uninversityId: {
     type: String,
     require: true,
   },
@@ -10,13 +17,17 @@ const UserSchema: Schema = new Schema({
     type: String,
     require: true,
   },
-  telegramId: {
-    type: Number,
-    require: true,
-  },
   password: {
     type: String,
     require: true,
+  },
+  autoReserve: {
+    type: Boolean,
+    default: false,
+  },
+  autoReservesDay: {
+    type: [Number],
+    default: [],
   },
 });
 

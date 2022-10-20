@@ -1,8 +1,11 @@
 export interface User {
-  refreshToken: string;
+  telegramId: number;
+  name: string;
+  uninversityId: number;
   username: string;
   password: string;
-  telegramId: number;
+  autoReserve?: boolean;
+  autoReserveDay?: number[];
   _id: string;
 }
 
