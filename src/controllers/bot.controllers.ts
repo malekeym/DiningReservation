@@ -33,6 +33,7 @@ class TelegramBot {
     this.bot = bot;
 
     bot.start(this.welcomeToBot);
+    bot.hears(MESSAGES.logout, this.handleLogout);
     bot.hears(MESSAGES.reserve, this.checkIsLogin);
     bot.hears(MESSAGES.back, this.welcomeToBot);
     bot.hears(MESSAGES.thisWeekReserves, this.showReservation);
@@ -52,6 +53,15 @@ class TelegramBot {
 
     bot.on('message', this.handleLoginCheck);
   }
+
+  private handleLogout: MiddlewareFn<Context<Update>> = async ctx => {
+    try {
+      await this.userService.logout(ctx.from.id);
+      ctx.reply(MESSAGES.successFullyLogout, mainKeyboard);
+    } catch {
+      ctx.reply(MESSAGES.unsuccessFullyLogout, mainKeyboard);
+    }
+  };
 
   private welcomeToBot: MiddlewareFn<Context<Update>> = ctx => ctx.reply(MESSAGES.welcome, mainKeyboard);
 

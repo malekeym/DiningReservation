@@ -82,6 +82,10 @@ class UserService {
   public getUserById = (telegramId: number) => {
     return this.users.findOne({ telegramId });
   };
+
+  public logout = (telegramId: number) => {
+    return Promise.all([this.users.deleteOne({ telegramId }), this.authService.removeAccessTokenFromRedis(telegramId)]);
+  };
 }
 
 export default UserService;

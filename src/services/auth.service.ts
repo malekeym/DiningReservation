@@ -14,6 +14,10 @@ class AuthService {
     return this.auth.client.get(telegramId.toString());
   };
 
+  public removeAccessTokenFromRedis = (telegramId: number) => {
+    return this.auth.client.unlink(telegramId.toString());
+  };
+
   public loginToSamad = async (username: string, password: string, telegramId: number): Promise<ThirdpartyResponse> => {
     const response = await fetch('https://refahi.kntu.ac.ir/oauth/token', {
       headers: {
@@ -28,7 +32,6 @@ class AuthService {
     }
     const data: ThirdpartyResponse = (await response.json()) as ThirdpartyResponse;
     if (!(await this.users.findOne({ telegramId, username }))) {
-
       await this.users.create({
         username,
         password: encrypt(password),

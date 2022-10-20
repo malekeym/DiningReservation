@@ -42,6 +42,8 @@ const MESSAGES = {
   logout: 'خروج',
   thisWeekReserves: 'لیست رزرو های این هفته',
   nextWeekReserves: 'لیست رزرو های هفته بعد',
+  successFullyLogout: 'با موفقیت خارج شدید',
+  unsuccessFullyLogout: 'یه مشکلی پیش اومد',
 };
 
 export default MESSAGES;
