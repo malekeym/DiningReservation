@@ -2,25 +2,36 @@ import MESSAGES, { DAYS } from '@/constants/messages';
 import { ONE_WEEK } from '@/constants/time';
 import { Markup } from 'telegraf';
 
-export const mainKeyboard = Markup.keyboard([
-  [Markup.button.callback(MESSAGES.setAutoReserve, ''), Markup.button.callback(MESSAGES.reserve, '')],
-  [Markup.button.callback(MESSAGES.lostCode, ''), Markup.button.callback(MESSAGES.changeSecondPass, '')],
-  [Markup.button.callback(MESSAGES.nextWeekReserves, ''), Markup.button.callback(MESSAGES.thisWeekReserves, '')],
-  [Markup.button.callback(MESSAGES.logout, '')],
-]);
+export const mainKeyboard = Markup.resize(Markup.keyboard([
+  [Markup.button.text(MESSAGES.reserve)],
+  [Markup.button.text(MESSAGES.setAutoReserve)],
+  [Markup.button.text(MESSAGES.lostCode)],
+  [Markup.button.text(MESSAGES.nextWeekFoods), Markup.button.text(MESSAGES.thisWeekFoods)],
+  [Markup.button.text(MESSAGES.nextWeekReserves), Markup.button.text(MESSAGES.thisWeekReserves)],
+  [Markup.button.text(MESSAGES.changeSecondPass)],
+  [Markup.button.text(MESSAGES.myInfo)],
+  [Markup.button.text(MESSAGES.about), Markup.button.text(MESSAGES.support)],
+  [Markup.button.text(MESSAGES.logout)],
+]),true);
 
-export const backKeyboard = Markup.keyboard([Markup.button.callback(MESSAGES.back, '')]);
+export const backKeyboard = Markup.resize(Markup.keyboard([Markup.button.text(MESSAGES.back)]),true);
 
-export const reserveListKeyboad = Markup.keyboard([
-  [Markup.button.callback(MESSAGES.reserveThisWeek, ''), Markup.button.callback(MESSAGES.reserveNextWeek, '')],
-  [Markup.button.callback(MESSAGES.back, '')],
-]);
+export const reserveListKeyboad = Markup.resize(Markup.keyboard([
+  [Markup.button.text(MESSAGES.reserveThisWeek), Markup.button.text(MESSAGES.reserveNextWeek)],
+  [Markup.button.text(MESSAGES.back)],
+]),true);
 
-export const lostCodeKeyboad = Markup.keyboard([
-  [Markup.button.callback(MESSAGES.getLostCode, ''), Markup.button.callback(MESSAGES.reportBadCode, '')],
-  [Markup.button.callback(MESSAGES.shareLostCode, '')],
-  [Markup.button.callback(MESSAGES.back, '')],
-]);
+
+export const loginKeyboad = Markup.resize(Markup.keyboard([
+  [Markup.button.text(MESSAGES.login)],
+  [Markup.button.text(MESSAGES.back)],
+]),true);
+
+export const lostCodeKeyboad = Markup.resize(Markup.keyboard([
+  [Markup.button.text(MESSAGES.getLostCode), Markup.button.text(MESSAGES.reportBadCode)],
+  [Markup.button.text(MESSAGES.shareLostCode)],
+  [Markup.button.text(MESSAGES.back)],
+]),true);
 
 export const nextWeekKeyboard = (id: string, today: number, prefix?: string) => {
   const finalPrefix = prefix ? `${prefix}-` : '';
@@ -30,11 +41,11 @@ export const nextWeekKeyboard = (id: string, today: number, prefix?: string) => 
 export const autoReserveKeyboard = (isActive: boolean) =>
   Markup.keyboard([
     [
-      Markup.button.callback(MESSAGES.changeAutoReserveDays, ''),
-      Markup.button.callback(isActive ? MESSAGES.deActivateAutoReserve : MESSAGES.activateAutoReserve, ''),
+      Markup.button.text(MESSAGES.changeAutoReserveDays),
+      Markup.button.text(isActive ? MESSAGES.deActivateAutoReserve : MESSAGES.activateAutoReserve),
     ],
-    [Markup.button.callback(MESSAGES.showAutoReserveStatus, '')],
-    [Markup.button.callback(MESSAGES.back, '')],
+    [Markup.button.text(MESSAGES.showAutoReserveStatus)],
+    [Markup.button.text(MESSAGES.back)],
   ]);
 
 export const dayInlineKeyboard = Markup.inlineKeyboard(

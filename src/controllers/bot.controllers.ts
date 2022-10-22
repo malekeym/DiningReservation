@@ -1,5 +1,5 @@
 import MESSAGES, { DAYS } from '@/constants/messages';
-import { AUTO_RESERVE, GET_PASSWORD, GET_SUPPORT, GET_USER_NAME, LOADING } from '@/constants/states';
+import { AUTO_RESERVE, GET_SUPPORT_MESSAGE, GET_PASSWORD, GET_SUPPORT, GET_USER_NAME, LOADING } from '@/constants/states';
 import { ONE_WEEK } from '@/constants/time';
 import AuthService from '@/services/auth.service';
 import ForgetCodeService from '@/services/forgetCodes.service';
@@ -14,6 +14,7 @@ import {
   nextWeekKeyboard,
   mainKeyboard,
   reserveListKeyboad,
+  loginKeyboad,
   dayInlineKeyboard,
 } from '@/utils/keyboars';
 import { logger } from '@/utils/logger';
@@ -43,7 +44,11 @@ class TelegramBot {
     bot.start(this.welcomeToBot);
     bot.hears(MESSAGES.logout, this.handleLogout);
     bot.hears(MESSAGES.reserve, this.checkIsLogin);
+    bot.hears(MESSAGES.login, this.checkIsLogin);
     bot.hears(MESSAGES.back, this.welcomeToBot);
+    bot.hears(MESSAGES.about, this.handleAbout);
+    bot.hears(MESSAGES.support, this.handleSupport);
+    bot.hears(MESSAGES.myInfo, this.handleMyInfo);
     bot.hears(MESSAGES.autoReserve, this.handleAutoReserve);
     bot.hears(MESSAGES.showAutoReserveStatus, this.handleAutoReserve);
     bot.hears(MESSAGES.activateAutoReserve, this.handleActivateAutoReserve);
@@ -77,7 +82,22 @@ class TelegramBot {
     }
   };
 
-  private welcomeToBot: MiddlewareFn<Context<Update>> = ctx => ctx.reply(MESSAGES.welcome, mainKeyboard);
+  private welcomeToBot: MiddlewareFn<Context<Update>> = async ctx => {
+    try {
+      const accessToken = await this.authService.getAccessToken(ctx.from.id);
+      if (accessToken) {
+        const userData = await this.userService.getUserById(ctx.from.id);
+        this.storage.removeState(ctx.from);
+        return ctx.replyWithMarkdown(
+          `👋🏻 سلام *${userData.name}*\nبه ربات رزرو خودکار غذا خواجه نصیر خوش اومدی.\n\n🔻 قبل از هرکاری باید لاگین کنی`,
+          loginKeyboad,
+        );
+      }
+    } catch (err) {
+      logger.error(err);
+    }
+    this.storage.setState(ctx.from, GET_USER_NAME);
+  }
 
   private handleLoginCheck: MiddlewareFn<Context<Update>> = async ctx => {
     const { state, username } = this.storage.getState(ctx.from);
@@ -108,6 +128,11 @@ class TelegramBot {
       //@ts-expect-error we should why text not exist on context
       this.supportService.addToSupport({ id: ctx.from.id, code: ctx.from.text });
       return ctx.reply(MESSAGES.weWouldCheck, backKeyboard);
+    }
+    if (state === GET_SUPPORT_MESSAGE) {
+      this.storage.removeState(ctx.from);
+      // TODO: forward message to admins
+      return ctx.reply(MESSAGES.supportMessageSent, backKeyboard);
     }
     ctx.reply(MESSAGES.error, backKeyboard);
   };
@@ -394,6 +419,33 @@ class TelegramBot {
       ctx.answerCbQuery();
     }
   };
+
+  private handleAbout: MiddlewareFn<Context<Update>> = async (ctx, next) => {
+    try {
+        return ctx.replyWithMarkdown(MESSAGES.aboutMessage, backKeyboard);
+    } catch (err) {
+      logger.error(err);
+    }
+  };
+
+  private handleSupport: MiddlewareFn<Context<Update>> = async (ctx, next) => {
+    try {
+        this.storage.setState(ctx.from, GET_SUPPORT_MESSAGE);
+        return ctx.replyWithMarkdown(MESSAGES.supportMessage, backKeyboard);
+    } catch (err) {
+      logger.error(err);
+    }
+  };
+  
+  private handleMyInfo: MiddlewareFn<Context<Update>> = async (ctx, next) => {
+    try {
+        return ctx.replyWithMarkdown(MESSAGES.myInfoMessage, backKeyboard);
+    } catch (err) {
+      logger.error(err);
+    }
+  };
 }
+
+
 
 export default TelegramBot;
