@@ -439,7 +439,13 @@ class TelegramBot {
   
   private handleMyInfo: MiddlewareFn<Context<Update>> = async (ctx, next) => {
     try {
-        return ctx.replyWithMarkdown(MESSAGES.myInfoMessage, backKeyboard);
+        var infoMessage = MESSAGES.myInfoMessage;
+        const userData = await this.userService.getUserById(ctx.from.id);
+        infoMessage = infoMessage.replace('/\_name\_/gi', userData.name);
+        infoMessage = infoMessage.replace('/\_uniname\_/gi', userData.uninversityId);
+        infoMessage = infoMessage.replace('/\_id\_/gi', userData.telegramId);
+        infoMessage = infoMessage.replace('/\_username\_/gi', userData.username);
+        return ctx.replyWithMarkdown(infoMessage, backKeyboard);
     } catch (err) {
       logger.error(err);
     }
