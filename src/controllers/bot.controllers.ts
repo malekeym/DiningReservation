@@ -88,7 +88,7 @@ class TelegramBot {
       if (accessToken) {
         const userData = await this.userService.getUserById(ctx.from.id);
         this.storage.removeState(ctx.from);
-        return ctx.replyWithMarkdownV2(
+        return ctx.replyWithMarkdown(
           `👋🏻 سلام *${userData.name}*\nبه ربات رزرو خودکار غذا خواجه نصیر خوش اومدی.\n\n🔻 قبل از هرکاری باید لاگین کنی` + MESSAGES.tag,
           loginKeyboad,
         );
@@ -276,7 +276,7 @@ class TelegramBot {
       if (accessToken) {
         const userData = await this.userService.getUserById(ctx.from.id);
         this.storage.removeState(ctx.from);
-        return ctx.replyWithMarkdownV2(
+        return ctx.replyWithMarkdown(
           `👋🏻 سلام *${userData.name}*\nبه ربات رزرو خودکار غذا خواجه نصیر خوش اومدی.\n\n🔻 یکی از دکمه های زیر را انتخاب کن.` + MESSAGES.tag,
           reserveListKeyboad,
         );
@@ -422,7 +422,7 @@ class TelegramBot {
 
   private handleAbout: MiddlewareFn<Context<Update>> = async (ctx, next) => {
     try {
-        return ctx.replyWithMarkdownV2(MESSAGES.aboutMessage + MESSAGES.tag, backKeyboard);
+        return ctx.replyWithMarkdown(MESSAGES.aboutMessage + MESSAGES.tag, backKeyboard);
     } catch (err) {
       logger.error(err);
     }
@@ -431,7 +431,7 @@ class TelegramBot {
   private handleSupport: MiddlewareFn<Context<Update>> = async (ctx, next) => {
     try {
         this.storage.setState(ctx.from, GET_SUPPORT_MESSAGE);
-        return ctx.replyWithMarkdownV2(MESSAGES.supportMessage + MESSAGES.tag, backKeyboard);
+        return ctx.replyWithMarkdown(MESSAGES.supportMessage + MESSAGES.tag, backKeyboard);
     } catch (err) {
       logger.error(err);
     }
@@ -445,7 +445,7 @@ class TelegramBot {
         infoMessage = infoMessage.replace('/\_uniname\_/gi', String(userData.uninversityId));
         infoMessage = infoMessage.replace('/\_id\_/gi', String(userData.telegramId));
         infoMessage = infoMessage.replace('/\_username\_/gi', userData.username);
-        return ctx.replyWithMarkdownV2(infoMessage + MESSAGES.tag, backKeyboard);
+        return ctx.replyWithMarkdown(infoMessage + MESSAGES.tag, backKeyboard);
     } catch (err) {
       logger.error(err);
     }
