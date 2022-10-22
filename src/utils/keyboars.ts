@@ -3,12 +3,11 @@ import { ONE_WEEK } from '@/constants/time';
 import { Markup } from 'telegraf';
 
 export const mainKeyboard = Markup.keyboard([
-  [Markup.button.text(MESSAGES.reserve)],
-  [Markup.button.text(MESSAGES.setAutoReserve)],
+  [Markup.button.text(MESSAGES.setAutoReserve), Markup.button.text(MESSAGES.reserve)],
   [Markup.button.text(MESSAGES.lostCode)],
-  [Markup.button.text(MESSAGES.nextWeekFoods), Markup.button.text(MESSAGES.thisWeekFoods)],
+  // [Markup.button.text(MESSAGES.nextWeekFoods), Markup.button.text(MESSAGES.thisWeekFoods)],
   [Markup.button.text(MESSAGES.nextWeekReserves), Markup.button.text(MESSAGES.thisWeekReserves)],
-  [Markup.button.text(MESSAGES.changeSecondPass)],
+  // [Markup.button.text(MESSAGES.changeSecondPass)],
   [Markup.button.text(MESSAGES.myInfo)],
   [Markup.button.text(MESSAGES.about), Markup.button.text(MESSAGES.support)],
   [Markup.button.text(MESSAGES.logout)],

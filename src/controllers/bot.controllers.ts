@@ -1,4 +1,5 @@
-import MESSAGES, { DAYS } from '@/constants/messages';
+import { ADMINS } from '@/config';
+import MESSAGES, { DAYS, UNIVERSITIES } from '@/constants/messages';
 import { AUTO_RESERVE, GET_SUPPORT_MESSAGE, GET_PASSWORD, GET_SUPPORT, GET_USER_NAME, LOADING } from '@/constants/states';
 import { ONE_WEEK } from '@/constants/time';
 import AuthService from '@/services/auth.service';
@@ -76,28 +77,29 @@ class TelegramBot {
   private handleLogout: MiddlewareFn<Context<Update>> = async ctx => {
     try {
       await this.userService.logout(ctx.from.id);
-      ctx.reply(MESSAGES.successFullyLogout + MESSAGES.tag, mainKeyboard);
+      ctx.reply(MESSAGES.successFullyLogout + MESSAGES.tag, loginKeyboad);
     } catch {
       ctx.reply(MESSAGES.unsuccessFullOperation + MESSAGES.tag, mainKeyboard);
     }
   };
 
-  private welcomeToBot: MiddlewareFn<Context<Update>> = async ctx => {
+  private welcomeToBot: MiddlewareFn<Context<Update>> = async (ctx, next) => {
     try {
       const accessToken = await this.authService.getAccessToken(ctx.from.id);
       if (accessToken) {
         const userData = await this.userService.getUserById(ctx.from.id);
         this.storage.removeState(ctx.from);
         return ctx.replyWithMarkdown(
-          `👋🏻 سلام *${userData.name}*\nبه ربات رزرو خودکار غذا خواجه نصیر خوش اومدی.\n\n🔻 قبل از هرکاری باید لاگین کنی` + MESSAGES.tag,
-          loginKeyboad,
+          `👋🏻 سلام *${userData.name}*\nبه ربات رزرو خودکار غذا سلف دانشگاه خوش اومدی.\n\n🔻 یکی از دکمه های زیر را انتخاب کن.` + MESSAGES.tag,
+          mainKeyboard,
         );
       }
     } catch (err) {
       logger.error(err);
     }
     this.storage.setState(ctx.from, GET_USER_NAME);
-  }
+    return ctx.reply(MESSAGES.getUsername + MESSAGES.tag, backKeyboard);
+  };
 
   private handleLoginCheck: MiddlewareFn<Context<Update>> = async ctx => {
     const { state, username } = this.storage.getState(ctx.from);
@@ -111,11 +113,11 @@ class TelegramBot {
       ctx.reply(MESSAGES.letMeCheck);
       try {
         //@ts-expect-error TODO: check if text exist on type ctx.message or not
-        await this.authService.loginToSamad(username, ctx.message.text, ctx.message.from.id);
+        const { first_name } = await this.authService.loginToSamad(username, ctx.message.text, ctx.message.from.id);
         this.storage.removeState(ctx.from);
-        return ctx.reply(
-          `👋🏻 سلام *${username}*\nبه ربات رزرو خودکار غذا خواجه نصیر خوش اومدی.\n\n🔻 یکی از دکمه های زیر را انتخاب کن.` + MESSAGES.tag,
-          reserveListKeyboad,
+        return ctx.replyWithMarkdown(
+          `👋🏻 سلام *${first_name}*\nبه ربات رزرو خودکار غذا سلف دانشگاه خوش اومدی.\n\n🔻 یکی از دکمه های زیر را انتخاب کن.` + MESSAGES.tag,
+          mainKeyboard,
         );
       } catch (error) {
         logger.error(error);
@@ -131,7 +133,9 @@ class TelegramBot {
     }
     if (state === GET_SUPPORT_MESSAGE) {
       this.storage.removeState(ctx.from);
-      // TODO: forward message to admins
+      ADMINS.forEach(id => {
+        ctx.forwardMessage(id).catch(err => logger.error(err));
+      });
       return ctx.reply(MESSAGES.supportMessageSent + MESSAGES.tag, backKeyboard);
     }
     ctx.reply(MESSAGES.error + MESSAGES.tag, backKeyboard);
@@ -270,22 +274,8 @@ class TelegramBot {
     }
   };
 
-  private checkIsLogin: MiddlewareFn<Context<Update>> = async ctx => {
-    try {
-      const accessToken = await this.authService.getAccessToken(ctx.from.id);
-      if (accessToken) {
-        const userData = await this.userService.getUserById(ctx.from.id);
-        this.storage.removeState(ctx.from);
-        return ctx.replyWithMarkdown(
-          `👋🏻 سلام *${userData.name}*\nبه ربات رزرو خودکار غذا خواجه نصیر خوش اومدی.\n\n🔻 یکی از دکمه های زیر را انتخاب کن.` + MESSAGES.tag,
-          reserveListKeyboad,
-        );
-      }
-    } catch (err) {
-      logger.error(err);
-    }
-    this.storage.setState(ctx.from, GET_USER_NAME);
-    return ctx.reply(MESSAGES.getUsername + MESSAGES.tag, backKeyboard);
+  private checkIsLogin: MiddlewareFn<Context<Update>> = async (ctx, next) => {
+    this.welcomeToBot(ctx, next);
   };
 
   private showReservation: MiddlewareFn<Context<Update>> = async ctx => {
@@ -430,28 +420,23 @@ class TelegramBot {
 
   private handleSupport: MiddlewareFn<Context<Update>> = async (ctx, next) => {
     try {
-        this.storage.setState(ctx.from, GET_SUPPORT_MESSAGE);
-        return ctx.replyWithMarkdown(MESSAGES.supportMessage + MESSAGES.tag, backKeyboard);
+      this.storage.setState(ctx.from, GET_SUPPORT_MESSAGE);
+      return ctx.replyWithMarkdown(MESSAGES.supportMessage + MESSAGES.tag, backKeyboard);
     } catch (err) {
       logger.error(err);
     }
   };
-  
+
   private handleMyInfo: MiddlewareFn<Context<Update>> = async (ctx, next) => {
     try {
-        var infoMessage = MESSAGES.myInfoMessage;
-        const userData = await this.userService.getUserById(ctx.from.id);
-        infoMessage = infoMessage.replace('/\_name\_/gi', userData.name);
-        infoMessage = infoMessage.replace('/\_uniname\_/gi', String(userData.uninversityId));
-        infoMessage = infoMessage.replace('/\_id\_/gi', String(userData.telegramId));
-        infoMessage = infoMessage.replace('/\_username\_/gi', userData.username);
-        return ctx.replyWithMarkdown(infoMessage + MESSAGES.tag, backKeyboard);
+      const { name, username, uninversityId } = await this.userService.getUserById(ctx.from.id);
+      const infoMessage = MESSAGES.myInfoMessage({ name, username, uniName: UNIVERSITIES[uninversityId], id: ctx.from.id });
+
+      return ctx.replyWithMarkdown(infoMessage + MESSAGES.tag, backKeyboard);
     } catch (err) {
       logger.error(err);
     }
   };
 }
-
-
 
 export default TelegramBot;
