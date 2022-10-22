@@ -69,6 +69,7 @@ const MESSAGES = {
   isRemoved: 'حذف شد',
   showAutoReserveStatus: 'نمایش اطلاعات رزرو خودکار',
   youShouldLoginFirst: 'باید اول وارد شوید...',
+  tag: '\n\n♾ URB: @University_Reservation_Bot',
 };
 
 export const DAYS = ['شنبه', 'یک شنبه', 'دو شنبه', 'سه شنبه', 'چهارشنبه', 'پنج شنبه', 'جمعه'];
