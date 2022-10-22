@@ -9,10 +9,9 @@ const formatDays = (array: number[]) =>
 
 export const formatAutoReserveData = (user: User) => {
   return `
-    ${MESSAGES.autoReserveStatus}:       ${user.autoReserve ? MESSAGES.active : MESSAGES.deActive}
+${MESSAGES.autoReserveStatus}: ${user.autoReserve ? MESSAGES.active : MESSAGES.deActive}
 
 ${MESSAGES.activeDays}: 
-    ${user.autoReservesDay?.length ? formatDays(user.autoReservesDay) : MESSAGES.noDay}
-    
-    `;
+${user.autoReservesDay?.length ? formatDays(user.autoReservesDay) : MESSAGES.noDay}
+`;
 };
