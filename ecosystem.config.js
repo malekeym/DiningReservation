@@ -9,7 +9,7 @@
     {
       name: 'prod', // pm2 start App name
       script: 'node dist/server.js',
-      exec_mode: 'cluster', // 'cluster' or 'fork'
+      exec_mode: 'fork', // 'cluster' or 'fork'
       instance_var: 'INSTANCE_ID', // instance variable
       instances: 2, // pm2 instance count
       autorestart: true, // auto restart if process crash
