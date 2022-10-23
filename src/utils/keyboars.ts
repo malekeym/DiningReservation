@@ -16,7 +16,7 @@ export const mainKeyboard = Markup.keyboard([
 export const backKeyboard = Markup.keyboard([Markup.button.text(MESSAGES.back)]);
 
 export const reserveListKeyboad = Markup.keyboard([
-  [Markup.button.text(MESSAGES.reserveThisWeek), Markup.button.text(MESSAGES.reserveNextWeek)],
+  [Markup.button.text(MESSAGES.reserveNextWeek), Markup.button.text(MESSAGES.reserveThisWeek)],
   [Markup.button.text(MESSAGES.back)],
 ]);
 

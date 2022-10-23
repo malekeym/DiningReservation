@@ -44,7 +44,7 @@ class TelegramBot {
 
     bot.start(this.welcomeToBot);
     bot.hears(MESSAGES.logout, this.handleLogout);
-    bot.hears(MESSAGES.reserve, this.checkIsLogin);
+    bot.hears(MESSAGES.reserve, this.handleNewReserve);
     bot.hears(MESSAGES.login, this.checkIsLogin);
     bot.hears(MESSAGES.back, this.welcomeToBot);
     bot.hears(MESSAGES.about, this.handleAbout);
@@ -92,6 +92,23 @@ class TelegramBot {
         return ctx.replyWithMarkdown(
           `👋🏻 سلام *${userData.name}*\nبه ربات رزرو خودکار غذا سلف دانشگاه خوش اومدی.\n\n🔻 یکی از دکمه های زیر را انتخاب کن.` + MESSAGES.tag,
           mainKeyboard,
+        );
+      }
+    } catch (err) {
+      logger.error(err);
+    }
+    this.storage.setState(ctx.from, GET_USER_NAME);
+    return ctx.reply(MESSAGES.getUsername + MESSAGES.tag, backKeyboard);
+  };
+
+  private handleNewReserve: MiddlewareFn<Context<Update>> = async (ctx, next) => {
+    try {
+      const accessToken = await this.authService.getAccessToken(ctx.from.id);
+      if (accessToken) {
+        this.storage.removeState(ctx.from);
+        return ctx.replyWithMarkdown(
+          `🔻 یکی از دکمه های زیر را انتخاب کن.` + MESSAGES.tag,
+          reserveListKeyboad,
         );
       }
     } catch (err) {
@@ -274,7 +291,7 @@ class TelegramBot {
     }
   };
 
-  private checkIsLogin: MiddlewareFn<Context<Update>> = async (ctx, next) => {
+  private  checkIsLogin: MiddlewareFn<Context<Update>> = async (ctx, next) => {
     this.welcomeToBot(ctx, next);
   };
 
