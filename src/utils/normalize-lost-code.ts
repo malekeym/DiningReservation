@@ -3,8 +3,8 @@ import { ForgetCodeData } from '@/interfaces/users.interface';
 
 const normalizeLostCodeMessage = (data: ForgetCodeData) => {
   return `${MESSAGES.successFullLostCode}
-    ${MESSAGES.selfName}: ${data.payload.self}
-    ${MESSAGES.foodName}: ${data.payload.foodName}
+${MESSAGES.selfName}: ${data.payload.self}
+${MESSAGES.foodName}: ${data.payload.foodName}
     `;
 };
 

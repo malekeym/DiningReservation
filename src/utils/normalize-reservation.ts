@@ -8,9 +8,9 @@ export const formatReservedText = ({ mealTypes, dayTranslated, dateJStr }: Reser
   }
   const [meal] = mealTypes;
   return `
-    ${MESSAGES.foodName}: ${meal.reserve.foodNames}
-    ${MESSAGES.selfName}: ${meal.reserve.selfCodeName}
-    ${MESSAGES.day}: ${dayTranslated} ${dateJStr}
+${MESSAGES.foodName}: ${meal.reserve.foodNames}
+${MESSAGES.selfName}: ${meal.reserve.selfCodeName}
+${MESSAGES.day}: ${dayTranslated} ${dateJStr}
     `;
 };
 
