@@ -42,6 +42,7 @@ class TelegramBot {
   constructor(bot: Telegraf) {
     this.bot = bot;
 
+    // bot.use(ctx => console.log(ctx));
     bot.start(this.welcomeToBot);
     bot.hears(MESSAGES.logout, this.handleLogout);
     bot.hears(MESSAGES.reserve, this.handleNewReserve);
@@ -77,9 +78,9 @@ class TelegramBot {
   private handleLogout: MiddlewareFn<Context<Update>> = async ctx => {
     try {
       await this.userService.logout(ctx.from.id);
-      ctx.replyWithMarkdownV2(MESSAGES.successFullyLogout + MESSAGES.tag, loginKeyboad);
+      ctx.replyWithMarkdown(MESSAGES.successFullyLogout + MESSAGES.tag, loginKeyboad);
     } catch {
-      ctx.replyWithMarkdownV2(MESSAGES.unsuccessFullOperation + MESSAGES.tag, mainKeyboard);
+      ctx.replyWithMarkdown(MESSAGES.unsuccessFullOperation + MESSAGES.tag, mainKeyboard);
     }
   };
 
@@ -87,17 +88,15 @@ class TelegramBot {
     try {
       const accessToken = await this.authService.getAccessToken(ctx.from.id);
       if (accessToken) {
-        const userData = await this.userService.getUserById(ctx.from.id);
+        const { name } = await this.userService.getUserById(ctx.from.id);
         this.storage.removeState(ctx.from);
-        return ctx.replyWithMarkdown(MESSAGES.welcome(userData.name)+ MESSAGES.tag,
-          mainKeyboard,
-        );
+        return ctx.replyWithMarkdown(MESSAGES.welcome({ name }) + MESSAGES.tag, mainKeyboard);
       }
     } catch (err) {
       logger.error(err);
     }
     this.storage.setState(ctx.from, GET_USER_NAME);
-    return ctx.replyWithMarkdownV2(MESSAGES.getUsername + MESSAGES.tag, backKeyboard);
+    return ctx.replyWithMarkdown(MESSAGES.getUsername + MESSAGES.tag, backKeyboard);
   };
 
   private handleNewReserve: MiddlewareFn<Context<Update>> = async (ctx, next) => {
@@ -105,16 +104,13 @@ class TelegramBot {
       const accessToken = await this.authService.getAccessToken(ctx.from.id);
       if (accessToken) {
         this.storage.removeState(ctx.from);
-        return ctx.replyWithMarkdown(
-          `🔻 یکی از دکمه های زیر را انتخاب کن.` + MESSAGES.tag,
-          reserveListKeyboad,
-        );
+        return ctx.replyWithMarkdown(`🔻 یکی از دکمه های زیر را انتخاب کن.` + MESSAGES.tag, reserveListKeyboad);
       }
     } catch (err) {
       logger.error(err);
     }
     this.storage.setState(ctx.from, GET_USER_NAME);
-    return ctx.replyWithMarkdownV2(MESSAGES.getUsername + MESSAGES.tag, backKeyboard);
+    return ctx.replyWithMarkdown(MESSAGES.getUsername + MESSAGES.tag, backKeyboard);
   };
 
   private handleLoginCheck: MiddlewareFn<Context<Update>> = async ctx => {
@@ -122,11 +118,11 @@ class TelegramBot {
     if (state === GET_USER_NAME) {
       //@ts-expect-error TODO: check if text exist on type ctx.message or not
       this.storage.setState(ctx.from, GET_PASSWORD, { username: ctx.message.text });
-      return ctx.replyWithMarkdownV2(MESSAGES.getPassword + MESSAGES.tag);
+      return ctx.replyWithMarkdown(MESSAGES.getPassword + MESSAGES.tag);
     }
     if (state === GET_PASSWORD) {
       this.storage.setState(ctx.from.id, LOADING);
-      ctx.replyWithMarkdownV2(MESSAGES.letMeCheck);
+      ctx.replyWithMarkdown(MESSAGES.letMeCheck);
       try {
         //@ts-expect-error TODO: check if text exist on type ctx.message or not
         const { first_name } = await this.authService.loginToSamad(username, ctx.message.text, ctx.message.from.id);
@@ -145,51 +141,51 @@ class TelegramBot {
       this.storage.removeState(ctx.from);
       //@ts-expect-error we should why text not exist on context
       this.supportService.addToSupport({ id: ctx.from.id, code: ctx.from.text });
-      return ctx.replyWithMarkdownV2(MESSAGES.weWouldCheck + MESSAGES.tag, backKeyboard);
+      return ctx.replyWithMarkdown(MESSAGES.weWouldCheck + MESSAGES.tag, backKeyboard);
     }
     if (state === GET_SUPPORT_MESSAGE) {
       this.storage.removeState(ctx.from);
       ADMINS.forEach(id => {
         ctx.forwardMessage(id).catch(err => logger.error(err));
       });
-      return ctx.replyWithMarkdownV2(MESSAGES.supportMessageSent + MESSAGES.tag, backKeyboard);
+      return ctx.replyWithMarkdown(MESSAGES.supportMessageSent + MESSAGES.tag, backKeyboard);
     }
-    ctx.replyWithMarkdownV2(MESSAGES.error + MESSAGES.tag, backKeyboard);
+    ctx.replyWithMarkdown(MESSAGES.error + MESSAGES.tag, backKeyboard);
   };
 
   private handleAutoReserve: MiddlewareFn<Context<Update>> = async (ctx, next) => {
     try {
       const { text, data } = await this.userService.getAutoReserveStatus(ctx.from.id);
-      ctx.replyWithMarkdownV2(text + MESSAGES.tag, autoReserveKeyboard(data.autoReserve));
+      ctx.replyWithMarkdown(text + MESSAGES.tag, autoReserveKeyboard(data.autoReserve));
     } catch (err) {
       if (err.message === 'unAuthorized') {
-        ctx.replyWithMarkdownV2(MESSAGES.youShouldLoginFirst + MESSAGES.tag);
+        ctx.replyWithMarkdown(MESSAGES.youShouldLoginFirst + MESSAGES.tag);
         return this.checkIsLogin(ctx, next);
       }
-      ctx.replyWithMarkdownV2(MESSAGES.unsuccessFullOperation + MESSAGES.tag);
+      ctx.replyWithMarkdown(MESSAGES.unsuccessFullOperation + MESSAGES.tag);
     }
   };
 
   private handleActivateAutoReserve: MiddlewareFn<Context<Update>> = async ctx => {
     try {
       await this.userService.changeAutoReserveStatus(ctx.from.id, true);
-      ctx.replyWithMarkdownV2(MESSAGES.activateSuccessFully + MESSAGES.tag, autoReserveKeyboard(true));
+      ctx.replyWithMarkdown(MESSAGES.activateSuccessFully + MESSAGES.tag, autoReserveKeyboard(true));
     } catch {
-      ctx.replyWithMarkdownV2(MESSAGES.unsuccessFullOperation + MESSAGES.tag, mainKeyboard);
+      ctx.replyWithMarkdown(MESSAGES.unsuccessFullOperation + MESSAGES.tag, mainKeyboard);
     }
   };
 
   private handleDeActivateAutoReserve: MiddlewareFn<Context<Update>> = async ctx => {
     try {
       await this.userService.changeAutoReserveStatus(ctx.from.id, false);
-      ctx.replyWithMarkdownV2(MESSAGES.deActivateSuccessFully + MESSAGES.tag, autoReserveKeyboard(false));
+      ctx.replyWithMarkdown(MESSAGES.deActivateSuccessFully + MESSAGES.tag, autoReserveKeyboard(false));
     } catch {
-      ctx.replyWithMarkdownV2(MESSAGES.unsuccessFullOperation + MESSAGES.tag, mainKeyboard);
+      ctx.replyWithMarkdown(MESSAGES.unsuccessFullOperation + MESSAGES.tag, mainKeyboard);
     }
   };
 
   private changeAutoReserveSetting: MiddlewareFn<Context<Update>> = async ctx => {
-    ctx.replyWithMarkdownV2(MESSAGES.chooseDays + MESSAGES.tag, dayInlineKeyboard);
+    ctx.replyWithMarkdown(MESSAGES.chooseDays + MESSAGES.tag, dayInlineKeyboard);
   };
 
   private handleAddDayToAutoReserve: MiddlewareFn<
@@ -200,7 +196,7 @@ class TelegramBot {
     const dayIndex = ctx.match[1];
     const { isAdded } = await this.userService.updateAutoReserveDay(ctx.from.id, Number(dayIndex));
     ctx.answerCbQuery();
-    ctx.replyWithMarkdownV2(`${DAYS[dayIndex]} ${isAdded ? MESSAGES.isAdded : MESSAGES.isRemoved}` + MESSAGES.tag);
+    ctx.replyWithMarkdown(`${DAYS[dayIndex]} ${isAdded ? MESSAGES.isAdded : MESSAGES.isRemoved}` + MESSAGES.tag);
   };
 
   private selfCheck: MiddlewareFn<
@@ -211,15 +207,15 @@ class TelegramBot {
     const id = ctx.match[1];
 
     if (id) {
-      ctx.replyWithMarkdownV2(MESSAGES.letMeSendFoods + MESSAGES.tag);
+      ctx.replyWithMarkdown(MESSAGES.letMeSendFoods + MESSAGES.tag);
       try {
         const data = await this.userService.getPrograms(Number(id), ctx.from.id);
         const availableFoods = normalizeProgramData(data);
         if (isEmpty(availableFoods)) {
-          return ctx.replyWithMarkdownV2(MESSAGES.notFoundFoodForThisWeek + MESSAGES.tag);
+          return ctx.replyWithMarkdown(MESSAGES.notFoundFoodForThisWeek + MESSAGES.tag);
         }
         const { text, btns } = formatReservation(availableFoods);
-        ctx.replyWithMarkdownV2(text + MESSAGES.tag, btns);
+        ctx.replyWithMarkdown(text + MESSAGES.tag, btns);
       } catch (err) {
         logger.error(err);
       } finally {
@@ -243,12 +239,12 @@ class TelegramBot {
       const availableFoods = normalizeProgramData(data);
 
       if (isEmpty(availableFoods)) {
-        return ctx.replyWithMarkdownV2(MESSAGES.sorryNotFoundAnyFood + MESSAGES.tag, backKeyboard);
+        return ctx.replyWithMarkdown(MESSAGES.sorryNotFoundAnyFood + MESSAGES.tag, backKeyboard);
       }
 
       const { btns, text } = formatReservation(availableFoods);
 
-      return ctx.replyWithMarkdownV2(
+      return ctx.replyWithMarkdown(
         `${data.messageFa}
       ${text}` + MESSAGES.tag,
         btns,
@@ -270,56 +266,56 @@ class TelegramBot {
     try {
       const { messageFa, type } = await this.userService.reserveFood({ programId, foodTypeId }, ctx.from.id);
 
-      ctx.replyWithMarkdownV2(`${type === 'SUCCESS' ? '🤝✌️🙌' : '😢⚠️'} ${messageFa}` + MESSAGES.tag, backKeyboard);
+      ctx.replyWithMarkdown(`${type === 'SUCCESS' ? '🤝✌️🙌' : '😢⚠️'} ${messageFa}` + MESSAGES.tag, backKeyboard);
     } catch (err) {
       logger.error(err);
-      ctx.replyWithMarkdownV2(MESSAGES.error + MESSAGES.tag, backKeyboard);
+      ctx.replyWithMarkdown(MESSAGES.error + MESSAGES.tag, backKeyboard);
     } finally {
       ctx.answerCbQuery();
     }
   };
 
   private sendSelfs: (shouldReserveThisWeek: boolean) => MiddlewareFn<Context<Update>> = shouldReserveThisWeek => async ctx => {
-    ctx.replyWithMarkdownV2(MESSAGES.letMeSendSelfs + MESSAGES.tag);
+    ctx.replyWithMarkdown(MESSAGES.letMeSendSelfs + MESSAGES.tag);
     try {
       const { text, btns } = await this.userService.getSelfs(ctx.from.id, shouldReserveThisWeek ? '' : 'nextWeek');
 
-      ctx.replyWithMarkdownV2(text + MESSAGES.tag, btns);
+      ctx.replyWithMarkdown(text + MESSAGES.tag, btns);
     } catch (err) {
       logger.error(err);
     }
   };
 
-  private  checkIsLogin: MiddlewareFn<Context<Update>> = async (ctx, next) => {
+  private checkIsLogin: MiddlewareFn<Context<Update>> = async (ctx, next) => {
     this.welcomeToBot(ctx, next);
   };
 
   private showReservation: MiddlewareFn<Context<Update>> = async ctx => {
-    ctx.replyWithMarkdownV2(MESSAGES.letMeCheck + MESSAGES.tag);
+    ctx.replyWithMarkdown(MESSAGES.letMeCheck + MESSAGES.tag);
     try {
       const data = await this.userService.getReserves(ctx.from.id);
       const reserves = data.payload.weekDays.map(formatReservedText);
       console.log(reserves);
-      return ctx.replyWithMarkdownV2(reserves.join('\n') + MESSAGES.tag, backKeyboard);
+      return ctx.replyWithMarkdown(reserves.join('\n') + MESSAGES.tag, backKeyboard);
     } catch (err) {
       logger.error(err);
     }
-    ctx.replyWithMarkdownV2(MESSAGES.notFound + MESSAGES.tag, backKeyboard);
+    ctx.replyWithMarkdown(MESSAGES.notFound + MESSAGES.tag, backKeyboard);
   };
 
   private showNextWeekReservation: MiddlewareFn<Context<Update>> = async ctx => {
-    ctx.replyWithMarkdownV2(MESSAGES.letMeCheck + MESSAGES.tag);
+    ctx.replyWithMarkdown(MESSAGES.letMeCheck + MESSAGES.tag);
     const date = (await this.userService.getReserves(ctx.from.id)).payload.weekDays[0].date;
     const firstDayOfWeek = new Date(date).getTime();
     const nextWeek = formatDate(new Date(firstDayOfWeek + ONE_WEEK));
     try {
       const data = await this.userService.getReserves(ctx.from.id, nextWeek);
       const reserves = data.payload.weekDays.map(formatReservedText);
-      return ctx.replyWithMarkdownV2(reserves.join('\n') + MESSAGES.tag, backKeyboard);
+      return ctx.replyWithMarkdown(reserves.join('\n') + MESSAGES.tag, backKeyboard);
     } catch (err) {
       logger.error(err);
     }
-    ctx.replyWithMarkdownV2(MESSAGES.notFound + MESSAGES.tag, backKeyboard);
+    ctx.replyWithMarkdown(MESSAGES.notFound + MESSAGES.tag, backKeyboard);
   };
 
   private handleLostCode: MiddlewareFn<Context<Update>> = async (ctx, next) => {
@@ -327,23 +323,23 @@ class TelegramBot {
       const accessToken = await this.authService.getAccessToken(ctx.from.id);
       if (!accessToken) {
         this.storage.setState(ctx.from, GET_USER_NAME);
-        return ctx.replyWithMarkdownV2(MESSAGES.getUsername + MESSAGES.tag, backKeyboard);
+        return ctx.replyWithMarkdown(MESSAGES.getUsername + MESSAGES.tag, backKeyboard);
       }
     } catch (err) {
       logger.error(err);
     }
-    ctx.replyWithMarkdownV2(MESSAGES.findFromBelow + MESSAGES.tag, lostCodeKeyboad);
+    ctx.replyWithMarkdown(MESSAGES.findFromBelow + MESSAGES.tag, lostCodeKeyboad);
   };
 
   private handleReportBadCode: MiddlewareFn<Context<Update>> = async ctx => {
     this.storage.setState(ctx.from, GET_SUPPORT);
-    ctx.replyWithMarkdownV2(MESSAGES.supportLostCode + MESSAGES.tag);
+    ctx.replyWithMarkdown(MESSAGES.supportLostCode + MESSAGES.tag);
   };
 
   private handleSendSelfsForLostCode: MiddlewareFn<Context<Update>> = async ctx => {
     try {
       const { text, btns } = await this.userService.getSelfs(ctx.from.id, 'lostCode');
-      ctx.replyWithMarkdownV2(text + MESSAGES.tag, btns);
+      ctx.replyWithMarkdown(text + MESSAGES.tag, btns);
     } catch {}
   };
 
@@ -358,9 +354,9 @@ class TelegramBot {
       const currentDate = new Date(date);
       const data = await this.forgetCodeService.getLostCode(selfId, currentDate, ctx.from.id);
       if (!data) {
-        return ctx.replyWithMarkdownV2(MESSAGES.notFoundLostCode + MESSAGES.tag);
+        return ctx.replyWithMarkdown(MESSAGES.notFoundLostCode + MESSAGES.tag);
       }
-      ctx.replyWithMarkdownV2(getLostCodeSuccess(data.forgetCode) + MESSAGES.tag, backKeyboard);
+      ctx.replyWithMarkdown(getLostCodeSuccess(data.forgetCode) + MESSAGES.tag, backKeyboard);
     } catch (err) {
       logger.error(err);
     } finally {
@@ -375,9 +371,9 @@ class TelegramBot {
       if (isEmpty(btns.reply_markup.inline_keyboard)) {
         const { date } = data.payload.weekDays[0];
         const dateTime = new Date(date).getTime();
-        return ctx.replyWithMarkdownV2(MESSAGES.notFoundFoodForThisWeek + MESSAGES.tag, nextWeekKeyboard('', dateTime, 'lostCode'));
+        return ctx.replyWithMarkdown(MESSAGES.notFoundFoodForThisWeek + MESSAGES.tag, nextWeekKeyboard('', dateTime, 'lostCode'));
       }
-      return ctx.replyWithMarkdownV2(text + MESSAGES.tag, btns);
+      return ctx.replyWithMarkdown(text + MESSAGES.tag, btns);
     } catch (err) {
       logger.error(err);
     }
@@ -395,10 +391,10 @@ class TelegramBot {
       const data = await this.userService.getReserves(ctx.from.id, nextweekDate);
       const { btns, text } = normalizeReservation(data);
       if (isEmpty(btns.reply_markup.inline_keyboard)) {
-        return ctx.replyWithMarkdownV2(MESSAGES.sorryNotFoundAnyFood + MESSAGES.tag, backKeyboard);
+        return ctx.replyWithMarkdown(MESSAGES.sorryNotFoundAnyFood + MESSAGES.tag, backKeyboard);
       }
 
-      return ctx.replyWithMarkdownV2(text + MESSAGES.tag, btns);
+      return ctx.replyWithMarkdown(text + MESSAGES.tag, btns);
     } catch {
     } finally {
       ctx.answerCbQuery();
@@ -417,10 +413,10 @@ class TelegramBot {
     try {
       const data = await this.forgetCodeService.addLostCode({ id: ctx.from.id, reserveId, selfId, date });
 
-      ctx.replyWithMarkdownV2(normalizeLostCodeMessage(data) + MESSAGES.tag, backKeyboard);
+      ctx.replyWithMarkdown(normalizeLostCodeMessage(data) + MESSAGES.tag, backKeyboard);
     } catch (err) {
       logger.error(err);
-      ctx.replyWithMarkdownV2(MESSAGES.unSuccessFullLostCode + MESSAGES.tag);
+      ctx.replyWithMarkdown(MESSAGES.unSuccessFullLostCode + MESSAGES.tag);
     } finally {
       ctx.answerCbQuery();
     }
@@ -428,7 +424,7 @@ class TelegramBot {
 
   private handleAbout: MiddlewareFn<Context<Update>> = async (ctx, next) => {
     try {
-      return await ctx.replyWithMarkdownV2(MESSAGES.aboutMessage, backKeyboard);
+      return await ctx.replyWithMarkdown(MESSAGES.aboutMessage, backKeyboard);
     } catch (err) {
       logger.error(err);
     }
