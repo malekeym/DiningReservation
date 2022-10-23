@@ -294,9 +294,8 @@ class TelegramBot {
     ctx.replyWithMarkdown(MESSAGES.letMeCheck + MESSAGES.tag);
     try {
       const data = await this.userService.getReserves(ctx.from.id);
-      const reserves = data.payload.weekDays.map(formatReservedText);
-      console.log(reserves);
-      return ctx.replyWithMarkdown(reserves.join('\n') + MESSAGES.tag, backKeyboard);
+      const reserves = data.payload.weekDays.map(formatReservedText).filter(Boolean);
+      return ctx.replyWithMarkdown(reserves.length === 0 ? MESSAGES.noReserve : reserves.join('\n') + MESSAGES.tag, backKeyboard);
     } catch (err) {
       logger.error(err);
     }
@@ -310,8 +309,8 @@ class TelegramBot {
     const nextWeek = formatDate(new Date(firstDayOfWeek + ONE_WEEK));
     try {
       const data = await this.userService.getReserves(ctx.from.id, nextWeek);
-      const reserves = data.payload.weekDays.map(formatReservedText);
-      return ctx.replyWithMarkdown(reserves.join('\n') + MESSAGES.tag, backKeyboard);
+      const reserves = data.payload.weekDays.map(formatReservedText).filter(Boolean);
+      return ctx.replyWithMarkdown((reserves.length === 0 ? MESSAGES.noReserve : reserves.join('\n')) + MESSAGES.tag, backKeyboard);
     } catch (err) {
       logger.error(err);
     }
