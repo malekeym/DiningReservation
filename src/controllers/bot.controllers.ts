@@ -1,6 +1,6 @@
 import { ADMINS } from '@/config';
 import MESSAGES, { DAYS, UNIVERSITIES } from '@/constants/messages';
-import { AUTO_RESERVE, GET_SUPPORT_MESSAGE, GET_PASSWORD, GET_SUPPORT, GET_USER_NAME, LOADING } from '@/constants/states';
+import { AUTO_RESERVE, GET_SUPPORT_MESSAGE, GET_PASSWORD, GET_SUPPORT, GET_USER_NAME, LOADING, GET_UNIVERSITY } from '@/constants/states';
 import { ONE_WEEK } from '@/constants/time';
 import AuthService from '@/services/auth.service';
 import ForgetCodeService from '@/services/forgetCodes.service';
