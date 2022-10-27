@@ -1,6 +1,7 @@
 import MESSAGES, { DAYS } from '@/constants/messages';
 import { ONE_WEEK } from '@/constants/time';
 import { Markup } from 'telegraf';
+import { UNIVERSITIES } from '@/constants/messages';
 
 export const mainKeyboard = Markup.keyboard([
   [Markup.button.text(MESSAGES.setAutoReserve), Markup.button.text(MESSAGES.reserve)],
@@ -26,6 +27,15 @@ export const lostCodeKeyboad = Markup.keyboard([
   [Markup.button.text(MESSAGES.getLostCode), Markup.button.text(MESSAGES.reportBadCode)],
   [Markup.button.text(MESSAGES.shareLostCode)],
   [Markup.button.text(MESSAGES.back)],
+]).resize();
+
+export const universitiesKeyboad = Markup.keyboard([
+  [Markup.button.text(UNIVERSITIES[2])],
+  [Markup.button.text(UNIVERSITIES[3])],
+  [Markup.button.text(UNIVERSITIES[6])],
+  [Markup.button.text(UNIVERSITIES[7])],
+  [Markup.button.text(UNIVERSITIES[8])],
+  [Markup.button.text(UNIVERSITIES[24])],
 ]).resize();
 
 export const nextWeekKeyboard = (id: string, today: number, prefix?: string) => {
