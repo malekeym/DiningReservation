@@ -17,7 +17,7 @@ import {
   reserveListKeyboad,
   loginKeyboad,
   dayInlineKeyboard,
-  universitiesKeyboad,
+  universitiesKeyboard,
 } from '@/utils/keyboars';
 import { logger } from '@/utils/logger';
 import { normalizeLostCodeMessage, getLostCodeSuccess } from '@/utils/normalize-lost-code';
@@ -97,7 +97,7 @@ class TelegramBot {
       logger.error(err);
     }
     this.storage.setState(ctx.from, GET_UNIVERSITY);
-    return ctx.replyWithMarkdown(MESSAGES.getUniversity + MESSAGES.tag, backKeyboard);
+    return ctx.replyWithMarkdown(MESSAGES.getUniversity + MESSAGES.tag, universitiesKeyboard);
   };
 
   private handleNewReserve: MiddlewareFn<Context<Update>> = async (ctx, next) => {
@@ -111,13 +111,16 @@ class TelegramBot {
       logger.error(err);
     }
     this.storage.setState(ctx.from, GET_UNIVERSITY);
-    return ctx.replyWithMarkdown(MESSAGES.getUniversity + MESSAGES.tag, backKeyboard);
+    return ctx.replyWithMarkdown(MESSAGES.getUniversity + MESSAGES.tag, universitiesKeyboard);
   };
 
   private handleLoginCheck: MiddlewareFn<Context<Update>> = async ctx => {
-    const { state, username } = this.storage.getState(ctx.from);
-    if(state === GET_UNIVERSITY){
-      this.storage.setState(ctx.from, GET_USER_NAME, { uninversityId: (i)=>UNIVERSITIES[i]===ctx.message.text });
+    const { state, username, universityId } = this.storage.getState(ctx.from);
+    if (state === GET_UNIVERSITY) {
+      //@ts-expect-error we should why text not exist on context
+      const universityId = Object.keys(UNIVERSITIES).find(key => UNIVERSITIES[key] === ctx.message.text);
+      console.log(universityId);
+      this.storage.setState(ctx.from, GET_USER_NAME, { universityId: universityId });
       return ctx.replyWithMarkdown(MESSAGES.getUsername + MESSAGES.tag);
     }
     if (state === GET_USER_NAME) {
@@ -130,7 +133,7 @@ class TelegramBot {
       ctx.replyWithMarkdown(MESSAGES.letMeCheck);
       try {
         //@ts-expect-error TODO: check if text exist on type ctx.message or not
-        const { first_name } = await this.authService.loginToSamad(username, ctx.message.text, ctx.message.from.id);
+        const { first_name } = await this.authService.loginToSamad(username, ctx.message.text, ctx.message.from.id, universityId);
         this.storage.removeState(ctx.from);
         return ctx.replyWithMarkdown(
           `👋🏻 سلام *${first_name}*\nبه ربات رزرو خودکار غذا سلف دانشگاه خوش اومدی.\n\n🔻 یکی از دکمه های زیر را انتخاب کن.` + MESSAGES.tag,
@@ -327,7 +330,7 @@ class TelegramBot {
       const accessToken = await this.authService.getAccessToken(ctx.from.id);
       if (!accessToken) {
         this.storage.setState(ctx.from, GET_UNIVERSITY);
-        return ctx.replyWithMarkdown(MESSAGES.getUniversity + MESSAGES.tag, backKeyboard);
+        return ctx.replyWithMarkdown(MESSAGES.getUniversity + MESSAGES.tag, universitiesKeyboard);
       }
     } catch (err) {
       logger.error(err);
