@@ -97,7 +97,7 @@ class TelegramBot {
       logger.error(err);
     }
     this.storage.setState(ctx.from, GET_UNIVERSITY);
-    return ctx.replyWithMarkdown(MESSAGES.getUsername + MESSAGES.tag, backKeyboard);
+    return ctx.replyWithMarkdown(MESSAGES.getUniversity + MESSAGES.tag, backKeyboard);
   };
 
   private handleNewReserve: MiddlewareFn<Context<Update>> = async (ctx, next) => {
@@ -111,14 +111,14 @@ class TelegramBot {
       logger.error(err);
     }
     this.storage.setState(ctx.from, GET_UNIVERSITY);
-    return ctx.replyWithMarkdown(MESSAGES.getUsername + MESSAGES.tag, backKeyboard);
+    return ctx.replyWithMarkdown(MESSAGES.getUniversity + MESSAGES.tag, backKeyboard);
   };
 
   private handleLoginCheck: MiddlewareFn<Context<Update>> = async ctx => {
     const { state, username } = this.storage.getState(ctx.from);
     if(state === GET_UNIVERSITY){
       this.storage.setState(ctx.from, GET_USER_NAME, { uninversityId: (i)=>UNIVERSITIES[i]===ctx.message.text });
-      return ctx.replyWithMarkdown(MESSAGES.getUniversity + MESSAGES.tag);
+      return ctx.replyWithMarkdown(MESSAGES.getUsername + MESSAGES.tag);
     }
     if (state === GET_USER_NAME) {
       //@ts-expect-error TODO: check if text exist on type ctx.message or not
