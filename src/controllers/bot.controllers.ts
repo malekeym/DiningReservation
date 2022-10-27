@@ -1,6 +1,6 @@
 import { ADMINS } from '@/config';
 import MESSAGES, { DAYS, UNIVERSITIES } from '@/constants/messages';
-import { AUTO_RESERVE, GET_SUPPORT_MESSAGE, GET_PASSWORD, GET_SUPPORT, GET_USER_NAME, LOADING } from '@/constants/states';
+import { AUTO_RESERVE, GET_SUPPORT_MESSAGE, GET_PASSWORD, GET_SUPPORT, GET_USER_NAME, LOADING, GET_UNIVERSITY } from '@/constants/states';
 import { ONE_WEEK } from '@/constants/time';
 import AuthService from '@/services/auth.service';
 import ForgetCodeService from '@/services/forgetCodes.service';
@@ -17,6 +17,7 @@ import {
   reserveListKeyboad,
   loginKeyboad,
   dayInlineKeyboard,
+  universitiesKeyboad,
 } from '@/utils/keyboars';
 import { logger } from '@/utils/logger';
 import { normalizeLostCodeMessage, getLostCodeSuccess } from '@/utils/normalize-lost-code';
@@ -95,8 +96,8 @@ class TelegramBot {
     } catch (err) {
       logger.error(err);
     }
-    this.storage.setState(ctx.from, GET_USER_NAME);
-    return ctx.replyWithMarkdown(MESSAGES.getUsername + MESSAGES.tag, backKeyboard);
+    this.storage.setState(ctx.from, GET_UNIVERSITY);
+    return ctx.replyWithMarkdown(MESSAGES.getUniversity + MESSAGES.tag, backKeyboard);
   };
 
   private handleNewReserve: MiddlewareFn<Context<Update>> = async (ctx, next) => {
@@ -109,12 +110,16 @@ class TelegramBot {
     } catch (err) {
       logger.error(err);
     }
-    this.storage.setState(ctx.from, GET_USER_NAME);
-    return ctx.replyWithMarkdown(MESSAGES.getUsername + MESSAGES.tag, backKeyboard);
+    this.storage.setState(ctx.from, GET_UNIVERSITY);
+    return ctx.replyWithMarkdown(MESSAGES.getUniversity + MESSAGES.tag, backKeyboard);
   };
 
   private handleLoginCheck: MiddlewareFn<Context<Update>> = async ctx => {
     const { state, username } = this.storage.getState(ctx.from);
+    if(state === GET_UNIVERSITY){
+      this.storage.setState(ctx.from, GET_USER_NAME, { uninversityId: (i)=>UNIVERSITIES[i]===ctx.message.text });
+      return ctx.replyWithMarkdown(MESSAGES.getUsername + MESSAGES.tag);
+    }
     if (state === GET_USER_NAME) {
       //@ts-expect-error TODO: check if text exist on type ctx.message or not
       this.storage.setState(ctx.from, GET_PASSWORD, { username: ctx.message.text });
@@ -321,8 +326,8 @@ class TelegramBot {
     try {
       const accessToken = await this.authService.getAccessToken(ctx.from.id);
       if (!accessToken) {
-        this.storage.setState(ctx.from, GET_USER_NAME);
-        return ctx.replyWithMarkdown(MESSAGES.getUsername + MESSAGES.tag, backKeyboard);
+        this.storage.setState(ctx.from, GET_UNIVERSITY);
+        return ctx.replyWithMarkdown(MESSAGES.getUniversity + MESSAGES.tag, backKeyboard);
       }
     } catch (err) {
       logger.error(err);
