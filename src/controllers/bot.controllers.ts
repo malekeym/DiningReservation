@@ -17,6 +17,7 @@ import {
   reserveListKeyboad,
   loginKeyboad,
   dayInlineKeyboard,
+  universitiesKeyboad,
 } from '@/utils/keyboars';
 import { logger } from '@/utils/logger';
 import { normalizeLostCodeMessage, getLostCodeSuccess } from '@/utils/normalize-lost-code';
