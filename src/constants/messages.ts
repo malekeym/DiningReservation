@@ -75,6 +75,8 @@ const MESSAGES = {
   showAutoReserveStatus: 'نمایش اطلاعات رزرو خودکار',
   youShouldLoginFirst: 'باید اول وارد شوید ...',
   noReserve: 'رزروی وجود ندارد',
+  getUniversity: '🏫 *اسم دانشگاهت *رو انتخاب کن',
+
   tag: '\n\n- URB: @University\\_Reservation\\_Bot',
 };
 
