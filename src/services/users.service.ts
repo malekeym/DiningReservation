@@ -5,6 +5,7 @@ import normalizeSelfList from '@/utils/normalize-self-list';
 import userModel from '@models/users.model';
 import fetch from 'node-fetch';
 import AuthService from './auth.service';
+import { UNIVERSITIES_URL } from '@/constants/universities';
 
 class UserService {
   private users = userModel;
@@ -13,8 +14,8 @@ class UserService {
 
   public getSelfs = async (id: number, prefix?: string) => {
     const accessToken = await this.authService.getAccessToken(id);
-
-    const data = await fetch('https://refahi.kntu.ac.ir/rest/selfs', {
+    const { uninversityId } = await this.getUserById(id);
+    const data = await fetch(`${UNIVERSITIES_URL[uninversityId]}/rest/selfs`, {
       headers: {
         authorization: `Bearer ${accessToken}`,
       },
@@ -25,8 +26,9 @@ class UserService {
 
   public getReserves = async (id: number, date = ''): Promise<Reservations> => {
     const accessToken = await this.authService.getAccessToken(id);
+    const { uninversityId } = await this.getUserById(id);
 
-    const data = await fetch(`https://refahi.kntu.ac.ir/rest/reserves?weekStartDate=${date}`, {
+    const data = await fetch(`${UNIVERSITIES_URL[uninversityId]}/rest/reserves?weekStartDate=${date}`, {
       headers: {
         authorization: `Bearer ${accessToken}`,
       },
@@ -37,8 +39,9 @@ class UserService {
 
   public getDailySellPrograms = async (id: number) => {
     const accessToken = await this.authService.getAccessToken(id);
+    const { uninversityId } = await this.getUserById(id);
 
-    const data = await fetch('https://refahi.kntu.ac.ir/rest/daily-sell-programs', {
+    const data = await fetch(`${UNIVERSITIES_URL[uninversityId]}/rest/daily-sell-programs`, {
       headers: {
         authorization: `Bearer ${accessToken}`,
       },
@@ -49,8 +52,9 @@ class UserService {
 
   public getPrograms = async (selectedSelfId: number, id: number, startDate = ''): Promise<Programs> => {
     const accessToken = await this.authService.getAccessToken(id);
+    const { uninversityId } = await this.getUserById(id);
 
-    const data = await fetch(`https://refahi.kntu.ac.ir/rest/programs?selectedSelfId=${selectedSelfId}&weekStartDate=${startDate}`, {
+    const data = await fetch(`${UNIVERSITIES_URL[uninversityId]}/rest/programs?selectedSelfId=${selectedSelfId}&weekStartDate=${startDate}`, {
       headers: {
         authorization: `Bearer ${accessToken}`,
       },
@@ -61,8 +65,9 @@ class UserService {
 
   public reserveFood = async ({ programId, foodTypeId }: { programId: string; foodTypeId: string }, id: number): Promise<ReservationResponse> => {
     const accessToken = await this.authService.getAccessToken(id);
+    const { uninversityId } = await this.getUserById(id);
 
-    const response = await fetch(`https://refahi.kntu.ac.ir/rest/reserves/${programId}/reserve`, {
+    const response = await fetch(`${UNIVERSITIES_URL[uninversityId]}/rest/reserves/${programId}/reserve`, {
       headers: {
         accept: 'application/json',
         authorization: `Bearer ${accessToken}`,

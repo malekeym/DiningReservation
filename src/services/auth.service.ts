@@ -5,6 +5,7 @@ import { ThirdpartyResponse } from '@/interfaces/auth.interface';
 import AuthRepository from '@/models/auth.model';
 import { decrypt, encrypt } from '@/utils/crypto';
 import { ONE_SECONDS } from '@/constants/time';
+import { UNIVERSITIES_URL } from '@/constants/universities';
 
 class AuthService {
   private users = userModel;
@@ -18,8 +19,8 @@ class AuthService {
     return this.auth.client.unlink(telegramId.toString());
   };
 
-  public loginToSamad = async (username: string, password: string, telegramId: number): Promise<ThirdpartyResponse> => {
-    const response = await fetch('https://refahi.kntu.ac.ir/oauth/token', {
+  public loginToSamad = async (username: string, password: string, telegramId: number, universityId: number): Promise<ThirdpartyResponse> => {
+    const response = await fetch(`${UNIVERSITIES_URL[universityId]}/oauth/token`, {
       headers: {
         authorization: 'Basic c2FtYWQtbW9iaWxlOnNhbWFkLW1vYmlsZS1zZWNyZXQ=',
         'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
@@ -51,9 +52,9 @@ class AuthService {
       return accessToken;
     }
 
-    const { username, password: hashPassword } = await this.users.findOne({ telegramId });
+    const { username, password: hashPassword, uninversityId } = await this.users.findOne({ telegramId });
     const password = decrypt(hashPassword);
-    const { access_token } = await this.loginToSamad(username, password, telegramId);
+    const { access_token } = await this.loginToSamad(username, password, telegramId, uninversityId);
     return access_token;
   };
 }
