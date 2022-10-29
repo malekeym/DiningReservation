@@ -38,7 +38,7 @@ class AuthService {
         password: encrypt(password),
         name: data.first_name,
         telegramId,
-        uninversityId: 8, // hard-coded value for KNTU university
+        uninversityId
       });
     }
     await this.auth.client.set(telegramId.toString(), data.access_token);
