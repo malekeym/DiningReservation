@@ -431,7 +431,10 @@ class TelegramBot {
 
   private handleAbout: MiddlewareFn<Context<Update>> = async (ctx, next) => {
     try {
-      return await ctx.replyWithMarkdown(MESSAGES.aboutMessage, backKeyboard);
+      return await ctx.replyWithMarkdown(MESSAGES.aboutMessage, {
+        keyboard: backKeyboard,
+        disable_web_page_preview: false
+      });
     } catch (err) {
       logger.error(err);
     }
