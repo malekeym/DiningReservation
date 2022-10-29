@@ -37,6 +37,7 @@ services:
       - ./mongodata:/data/db
     ports:
       - '27017:27017'
+    command: [--auth]
 
   redis:
     image: redis/redis-stack
