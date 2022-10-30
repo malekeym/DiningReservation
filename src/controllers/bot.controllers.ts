@@ -433,7 +433,7 @@ class TelegramBot {
     try {
       return await ctx.replyWithMarkdown(MESSAGES.aboutMessage, {
         keyboard: backKeyboard,
-        disable_web_page_preview: false
+        disable_web_page_preview: false,
       });
     } catch (err) {
       logger.error(err);
@@ -451,8 +451,8 @@ class TelegramBot {
 
   private handleMyInfo: MiddlewareFn<Context<Update>> = async (ctx, next) => {
     try {
-      const { name, username, uninversityId } = await this.userService.getUserById(ctx.from.id);
-      const infoMessage = MESSAGES.myInfoMessage({ name, username, uniName: UNIVERSITIES[uninversityId], id: ctx.from.id });
+      const { name, username, universityId } = await this.userService.getUserById(ctx.from.id);
+      const infoMessage = MESSAGES.myInfoMessage({ name, username, uniName: UNIVERSITIES[universityId], id: ctx.from.id });
 
       return ctx.replyWithMarkdown(infoMessage + MESSAGES.tag, backKeyboard);
     } catch (err) {

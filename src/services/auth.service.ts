@@ -52,9 +52,9 @@ class AuthService {
       return accessToken;
     }
 
-    const { username, password: hashPassword, uninversityId } = await this.users.findOne({ telegramId });
+    const { username, password: hashPassword, universityId } = await this.users.findOne({ telegramId });
     const password = decrypt(hashPassword);
-    const { access_token } = await this.loginToSamad(username, password, telegramId, uninversityId);
+    const { access_token } = await this.loginToSamad(username, password, telegramId, universityId);
     return access_token;
   };
 }

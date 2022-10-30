@@ -1,7 +1,7 @@
 export interface User {
   telegramId: number;
   name: string;
-  uninversityId: number;
+  universityId: number;
   username: string;
   password: string;
   autoReserve?: boolean;

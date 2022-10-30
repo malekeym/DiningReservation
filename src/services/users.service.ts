@@ -14,8 +14,8 @@ class UserService {
 
   public getSelfs = async (id: number, prefix?: string) => {
     const accessToken = await this.authService.getAccessToken(id);
-    const { uninversityId } = await this.getUserById(id);
-    const data = await fetch(`${UNIVERSITIES_URL[uninversityId]}/rest/selfs`, {
+    const { universityId } = await this.getUserById(id);
+    const data = await fetch(`${UNIVERSITIES_URL[universityId]}/rest/selfs`, {
       headers: {
         authorization: `Bearer ${accessToken}`,
       },
@@ -26,9 +26,9 @@ class UserService {
 
   public getReserves = async (id: number, date = ''): Promise<Reservations> => {
     const accessToken = await this.authService.getAccessToken(id);
-    const { uninversityId } = await this.getUserById(id);
+    const { universityId } = await this.getUserById(id);
 
-    const data = await fetch(`${UNIVERSITIES_URL[uninversityId]}/rest/reserves?weekStartDate=${date}`, {
+    const data = await fetch(`${UNIVERSITIES_URL[universityId]}/rest/reserves?weekStartDate=${date}`, {
       headers: {
         authorization: `Bearer ${accessToken}`,
       },
@@ -39,9 +39,9 @@ class UserService {
 
   public getDailySellPrograms = async (id: number) => {
     const accessToken = await this.authService.getAccessToken(id);
-    const { uninversityId } = await this.getUserById(id);
+    const { universityId } = await this.getUserById(id);
 
-    const data = await fetch(`${UNIVERSITIES_URL[uninversityId]}/rest/daily-sell-programs`, {
+    const data = await fetch(`${UNIVERSITIES_URL[universityId]}/rest/daily-sell-programs`, {
       headers: {
         authorization: `Bearer ${accessToken}`,
       },
@@ -52,9 +52,9 @@ class UserService {
 
   public getPrograms = async (selectedSelfId: number, id: number, startDate = ''): Promise<Programs> => {
     const accessToken = await this.authService.getAccessToken(id);
-    const { uninversityId } = await this.getUserById(id);
+    const { universityId } = await this.getUserById(id);
 
-    const data = await fetch(`${UNIVERSITIES_URL[uninversityId]}/rest/programs?selectedSelfId=${selectedSelfId}&weekStartDate=${startDate}`, {
+    const data = await fetch(`${UNIVERSITIES_URL[universityId]}/rest/programs?selectedSelfId=${selectedSelfId}&weekStartDate=${startDate}`, {
       headers: {
         authorization: `Bearer ${accessToken}`,
       },
@@ -65,9 +65,9 @@ class UserService {
 
   public reserveFood = async ({ programId, foodTypeId }: { programId: string; foodTypeId: string }, id: number): Promise<ReservationResponse> => {
     const accessToken = await this.authService.getAccessToken(id);
-    const { uninversityId } = await this.getUserById(id);
+    const { universityId } = await this.getUserById(id);
 
-    const response = await fetch(`${UNIVERSITIES_URL[uninversityId]}/rest/reserves/${programId}/reserve`, {
+    const response = await fetch(`${UNIVERSITIES_URL[universityId]}/rest/reserves/${programId}/reserve`, {
       headers: {
         accept: 'application/json',
         authorization: `Bearer ${accessToken}`,

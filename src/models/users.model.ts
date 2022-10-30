@@ -9,7 +9,7 @@ const UserSchema: Schema = new Schema({
   name: {
     type: String,
   },
-  uninversityId: {
+  universityId: {
     type: Number,
     require: true,
   },
