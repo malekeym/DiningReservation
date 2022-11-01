@@ -9,7 +9,7 @@ import { connect, set } from 'mongoose';
 import { Telegraf } from 'telegraf';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import {DB_USER, DB_PASSWORD, NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS, BOT_TOKEN } from '@config';
+import { DB_USER, DB_PASSWORD, NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS, BOT_TOKEN } from '@config';
 import { dbConnection } from '@databases';
 import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
@@ -48,20 +48,22 @@ class App {
   }
 
   private connectToDatabase() {
-     if (this.env !== 'production') {
+    if (this.env !== 'production') {
       set('debug', true);
-     }
+    }
 
-    connect(dbConnection.url,{
-    poolSize: 10,
-    authSource: "admin",
-    user: DB_USER,
-    pass: DB_PASSWORD,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-    useFindAndModify: false
-    }).then(instance=>console.log(instance)).catch(err=>console.error(err));
+    connect(dbConnection.url, {
+      poolSize: 10,
+      authSource: 'admin',
+      user: DB_USER,
+      pass: DB_PASSWORD,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useCreateIndex: true,
+      useFindAndModify: false,
+    })
+      .then(instance => console.log(instance))
+      .catch(err => console.error(err));
   }
 
   private initializeMiddlewares() {
@@ -78,8 +80,7 @@ class App {
   private async initializeBot() {
     const telegramBotInstance = new TelegramBot(this.bot);
     await this.bot.launch();
-    console.log("You should now be connected to telegram.");
-
+    console.log('You should now be connected to telegram.');
   }
 
   private initializeRoutes(routes: Routes[]) {

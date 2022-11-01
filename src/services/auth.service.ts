@@ -37,8 +37,8 @@ class AuthService {
         username,
         password: encrypt(password),
         name: data.first_name,
-	telegramId,
-	universityId
+        telegramId,
+        universityId,
       });
     }
     await this.auth.client.set(telegramId.toString(), data.access_token);
