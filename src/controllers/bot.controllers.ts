@@ -162,6 +162,7 @@ class TelegramBot {
   };
 
   private handleAutoReserve: MiddlewareFn<Context<Update>> = async (ctx, next) => {
+    return ctx.reply(MESSAGES.notAvailable, mainKeyboard);
     try {
       const { text, data } = await this.userService.getAutoReserveStatus(ctx.from.id);
       ctx.replyWithMarkdown(text + MESSAGES.tag, autoReserveKeyboard(data.autoReserve));
