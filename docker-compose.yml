@@ -42,6 +42,7 @@ services:
   redis:
     image: redis
     container_name: "redis"
+    command: /bin/sh -c "redis-server --requirepass $$REDIS_HOST_PASSWORD"
     restart: always
     ports:
       - '6379:6379'
@@ -50,6 +51,8 @@ services:
     volumes:
       - ./data:/data
     restart: always
+    env_file:
+      - .env.production.local
     networks:
       - redisnet
 
