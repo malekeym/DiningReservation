@@ -358,7 +358,10 @@ class TelegramBot {
   > = async ctx => {
     const selfId = Number(ctx.match[1]);
     try {
-      const { date } = await this.userService.getCurrentPorgram(selfId, ctx.from.id);
+      const { date } = (await this.userService.getCurrentPorgram(selfId, ctx.from.id)) || {};
+      if (!date) {
+        return ctx.replyWithMarkdown(MESSAGES.notFoundProgram + MESSAGES.tag);
+      }
       const currentDate = new Date(date);
       const data = await this.forgetCodeService.getLostCode(selfId, currentDate, ctx.from.id);
       if (!data) {

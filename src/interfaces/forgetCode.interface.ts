@@ -5,5 +5,6 @@ export interface ForgetCode {
   selfId: number;
   date: Date;
   used: boolean;
+  universityId: number;
   _id: string;
 }

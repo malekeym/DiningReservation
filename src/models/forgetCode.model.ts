@@ -14,7 +14,10 @@ const ForgetCodeSchema: Schema = new Schema({
     type: Number,
     require: true,
   },
-
+  universityId: {
+    type: Number,
+    require: true,
+  },
   selfId: {
     type: Number,
     require: true,
