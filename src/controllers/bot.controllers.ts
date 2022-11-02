@@ -47,8 +47,8 @@ class TelegramBot {
     bot.help(this.help);
     bot.command('about', this.handleAbout);
     bot.command('support', this.handleSupport);
-    bot.command('show_reserves', this.showReservation);
-    bot.command('reserve', this.sendSelfs(true));
+    bot.command('show_reserves', this.handleNewReserve);
+    bot.command('reserve', this.handleNewReserve);
     bot.command('exit', this.handleLogout);
 
     bot.hears(MESSAGES.logout, this.handleLogout);
