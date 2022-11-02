@@ -1,3 +1,5 @@
+import { WEEK_DAYS } from '@/constants/time';
+
 function padTo2Digits(num: number) {
   return num.toString().padStart(2, '0');
 }
@@ -15,4 +17,7 @@ function formatDate(date: Date) {
   );
 }
 
-export { formatDate };
+function convertDayToFa(date: string) {
+  return WEEK_DAYS[date];
+}
+export { formatDate, convertDayToFa };

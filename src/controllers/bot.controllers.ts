@@ -151,6 +151,7 @@ class TelegramBot {
         );
       } catch (error) {
         logger.error(error);
+        this.storage.removeState(ctx.from);
         ctx.replyWithMarkdown(MESSAGES.wrongUsernamrOrPassword + MESSAGES.tag, backKeyboard);
       }
       return;
@@ -465,8 +466,8 @@ class TelegramBot {
 
   private handleMyInfo: MiddlewareFn<Context<Update>> = async (ctx, next) => {
     try {
-      const { name, username, universityId, credit } = await this.userService.getUserInfo(ctx.from.id);
-      const infoMessage = MESSAGES.myInfoMessage({ name, username, uniName: UNIVERSITIES[universityId], id: ctx.from.id, credit });
+      const { name, username, universityId, credit, lastName } = await this.userService.getUserInfo(ctx.from.id);
+      const infoMessage = MESSAGES.myInfoMessage({ name, lastName, username, uniName: UNIVERSITIES[universityId], id: ctx.from.id, credit });
 
       return ctx.replyWithMarkdown(infoMessage + MESSAGES.tag, backKeyboard);
     } catch (err) {

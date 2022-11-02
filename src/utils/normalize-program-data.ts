@@ -2,6 +2,7 @@ import MESSAGES from '@/constants/messages';
 import { DAYS_LIMIT } from '@/constants/universities';
 import { Programs, SelfProgram } from '@/interfaces/users.interface';
 import { Markup } from 'telegraf';
+import { convertDayToFa } from './format';
 
 const normalizeProgramData = (data: Programs) => {
   if (!data.payload) {
@@ -26,7 +27,7 @@ export const formatReserveText = (data: SelfProgram, index: number) => {
   ${MESSAGES.mealType}: ${data.mealTypeName}
   ${MESSAGES.foodName}: ${foodData.foodNames}
   ${MESSAGES.price}: ${foodData.price} ${MESSAGES.currency}
-  ${MESSAGES.date}: ${new Date(data.date).toLocaleDateString('fa-IR')}
+  ${MESSAGES.date}: ${convertDayToFa(data.dayTranslated) || ''} ${new Date(data.date).toLocaleDateString('fa-IR')} 
   `;
 };
 

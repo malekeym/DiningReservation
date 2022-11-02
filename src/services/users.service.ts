@@ -106,6 +106,7 @@ class UserService {
       username,
       universityId,
       credit: data.payload.credit,
+      lastName: data.payload.user.lastName,
     };
   };
 

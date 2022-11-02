@@ -30,7 +30,9 @@ export const lostCodeKeyboad = Markup.keyboard([
 ]).resize();
 
 export const universitiesKeyboard = Markup.keyboard(
-  Object.values(UNIVERSITIES).map(value => Markup.button.text(value)),
+  Object.values(UNIVERSITIES)
+    .map(value => Markup.button.text(value))
+    .reverse(),
   { wrap: (_btn, index, currentRow) => currentRow.length >= index / 3 },
 ).resize();
 
