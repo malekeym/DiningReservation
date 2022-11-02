@@ -1,4 +1,5 @@
 import MESSAGES from '@/constants/messages';
+import { DAYS_LIMIT } from '@/constants/universities';
 import { Programs, SelfProgram } from '@/interfaces/users.interface';
 import { Markup } from 'telegraf';
 
@@ -7,10 +8,11 @@ const normalizeProgramData = (data: Programs) => {
     return [];
   }
   const selectedDay = data.payload.selfWeekPrograms
-    .filter(([item]) => {
-      const { programId } = item;
+    .flat()
+    .filter(item => {
+      const { daysDifferenceWithToday, programId } = item;
       const isNotReserved = () => (data.payload.userWeekReserves || []).findIndex(item => item.programId === programId) === -1;
-      return isNotReserved();
+      return DAYS_LIMIT <= daysDifferenceWithToday && isNotReserved();
     })
     .flat();
 

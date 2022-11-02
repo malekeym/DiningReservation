@@ -4,3 +4,5 @@ export const UNIVERSITIES_URL = {
   7: 'https://setad.dining.sharif.edu',
   8: 'https://refahi.kntu.ac.ir',
 };
+
+export const DAYS_LIMIT = 2;
