@@ -45,11 +45,11 @@ class TelegramBot {
 
     bot.start(this.welcomeToBot);
     bot.help(this.help);
-    bot.command(MESSAGES.about, this.handleAbout);
-    bot.command(MESSAGES.support, this.handleSupport);
-    bot.command(MESSAGES.reserve, this.sendSelfs(true));
-    bot.command(MESSAGES.logout, this.handleLogout);
-    bot.command(MESSAGES.thisWeekReserves, this.showReservation);
+    bot.command('about', this.handleAbout);
+    bot.command('support', this.handleSupport);
+    bot.command('show_reserves', this.showReservation);
+    bot.command('reserve', this.sendSelfs(true));
+    bot.command('exit', this.handleLogout);
 
     bot.hears(MESSAGES.logout, this.handleLogout);
     bot.hears(MESSAGES.reserve, this.handleNewReserve);
