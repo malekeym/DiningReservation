@@ -83,7 +83,7 @@ class TelegramBot {
   }
 
   private help: MiddlewareFn<Context<Update>> = ctx => {
-    ctx.replyWithMarkdown(MESSAGES.help, mainKeyboard);
+    ctx.replyWithMarkdown(MESSAGES.help);
   };
 
   private handleLogout: MiddlewareFn<Context<Update>> = async ctx => {

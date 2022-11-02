@@ -21,7 +21,7 @@ export const reserveListKeyboad = Markup.keyboard([
   [Markup.button.text(MESSAGES.back)],
 ]).resize();
 
-export const loginKeyboad = Markup.keyboard([[Markup.button.text(MESSAGES.login)], [Markup.button.text(MESSAGES.back)]]).resize();
+export const loginKeyboad = Markup.keyboard([[Markup.button.text(MESSAGES.login)]]).resize();
 
 export const lostCodeKeyboad = Markup.keyboard([
   [Markup.button.text(MESSAGES.getLostCode), Markup.button.text(MESSAGES.reportBadCode)],
