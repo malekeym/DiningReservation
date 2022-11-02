@@ -89,6 +89,26 @@ class UserService {
     return this.users.findOne({ telegramId });
   };
 
+  public getUserInfo = async (telegramId: number) => {
+    const [{ name, username, universityId }, token] = await Promise.all([this.getUserById(telegramId), this.authService.getAccessToken(telegramId)]);
+
+    const response = await fetch(`${UNIVERSITIES_URL[universityId]}/rest/users/nurture-profiles`, {
+      headers: {
+        accept: 'application/json',
+        authorization: `Bearer ${token}`,
+      },
+      body: null,
+      method: 'GET',
+    });
+    const data = await response.json();
+    return {
+      name,
+      username,
+      universityId,
+      credit: data.payload.credit,
+    };
+  };
+
   public logout = (telegramId: number) => {
     return Promise.all([this.users.deleteOne({ telegramId }), this.authService.removeAccessTokenFromRedis(telegramId)]);
   };

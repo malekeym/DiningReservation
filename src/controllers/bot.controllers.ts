@@ -43,8 +43,14 @@ class TelegramBot {
   constructor(bot: Telegraf) {
     this.bot = bot;
 
-    // bot.use(ctx => console.log(ctx));
     bot.start(this.welcomeToBot);
+    bot.help(this.help);
+    bot.command(MESSAGES.about, this.handleAbout);
+    bot.command(MESSAGES.support, this.handleSupport);
+    bot.command(MESSAGES.reserve, this.sendSelfs(true));
+    bot.command(MESSAGES.logout, this.handleLogout);
+    bot.command(MESSAGES.thisWeekReserves, this.showReservation);
+
     bot.hears(MESSAGES.logout, this.handleLogout);
     bot.hears(MESSAGES.reserve, this.handleNewReserve);
     bot.hears(MESSAGES.login, this.checkIsLogin);
@@ -75,6 +81,10 @@ class TelegramBot {
 
     bot.on('message', this.handleLoginCheck);
   }
+
+  private help: MiddlewareFn<Context<Update>> = ctx => {
+    ctx.replyWithMarkdown(MESSAGES.help, mainKeyboard);
+  };
 
   private handleLogout: MiddlewareFn<Context<Update>> = async ctx => {
     try {
@@ -455,8 +465,8 @@ class TelegramBot {
 
   private handleMyInfo: MiddlewareFn<Context<Update>> = async (ctx, next) => {
     try {
-      const { name, username, universityId } = await this.userService.getUserById(ctx.from.id);
-      const infoMessage = MESSAGES.myInfoMessage({ name, username, uniName: UNIVERSITIES[universityId], id: ctx.from.id });
+      const { name, username, universityId, credit } = await this.userService.getUserInfo(ctx.from.id);
+      const infoMessage = MESSAGES.myInfoMessage({ name, username, uniName: UNIVERSITIES[universityId], id: ctx.from.id, credit });
 
       return ctx.replyWithMarkdown(infoMessage + MESSAGES.tag, backKeyboard);
     } catch (err) {
