@@ -8,7 +8,11 @@ class AuthRepository {
     this.init();
   }
   private async init() {
-    this.client = await new Client().open(REDIS_URL);
+    try {
+      this.client = await new Client().open(REDIS_URL);
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 
