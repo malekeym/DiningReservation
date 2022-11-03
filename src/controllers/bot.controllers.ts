@@ -115,7 +115,7 @@ class TelegramBot {
       const accessToken = await this.authService.getAccessToken(ctx.from.id);
       if (accessToken) {
         this.storage.removeState(ctx.from);
-        return ctx.replyWithMarkdown(`🔻 یکی از دکمه های زیر را انتخاب کن.` + MESSAGES.tag, reserveListKeyboad);
+        return ctx.replyWithMarkdown(MESSAGES.findFromBelow, reserveListKeyboad);
       }
     } catch (err) {
       logger.error(err);
@@ -173,7 +173,7 @@ class TelegramBot {
   };
 
   private handleAutoReserve: MiddlewareFn<Context<Update>> = async (ctx, next) => {
-    return ctx.reply(MESSAGES.notAvailable + MESSAGES.tag, mainKeyboard);
+    return ctx.replyWithMarkdown(MESSAGES.notAvailable + MESSAGES.tag, mainKeyboard);
     try {
       const { text, data } = await this.userService.getAutoReserveStatus(ctx.from.id);
       ctx.replyWithMarkdown(text + MESSAGES.tag, autoReserveKeyboard(data.autoReserve));
@@ -311,7 +311,7 @@ class TelegramBot {
   };
 
   private showReservation: MiddlewareFn<Context<Update>> = async ctx => {
-    ctx.replyWithMarkdown(MESSAGES.letMeCheck + MESSAGES.tag);
+    ctx.replyWithMarkdown(MESSAGES.letMeCheck);
     try {
       const data = await this.userService.getReserves(ctx.from.id);
       const reserves = data.payload.weekDays.map(formatReservedText).filter(Boolean);
@@ -323,7 +323,7 @@ class TelegramBot {
   };
 
   private showNextWeekReservation: MiddlewareFn<Context<Update>> = async ctx => {
-    ctx.replyWithMarkdown(MESSAGES.letMeCheck + MESSAGES.tag);
+    ctx.replyWithMarkdown(MESSAGES.letMeCheck);
     const date = (await this.userService.getReserves(ctx.from.id)).payload.weekDays[0].date;
     const firstDayOfWeek = new Date(date).getTime();
     const nextWeek = formatDate(new Date(firstDayOfWeek + ONE_WEEK));
