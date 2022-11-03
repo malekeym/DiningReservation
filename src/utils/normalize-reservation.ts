@@ -6,26 +6,32 @@ export const formatReservedText = ({ mealTypes, dayTranslated, dateJStr }: Reser
   if (!mealTypes) {
     return;
   }
-  const [meal] = mealTypes;
-  return `
-${MESSAGES.foodName}: ${meal.reserve.foodNames}
-${MESSAGES.selfName}: ${meal.reserve.selfCodeName}
-${MESSAGES.day}: ${dayTranslated} ${dateJStr}
-    `;
+  return mealTypes
+    .map(meal => {
+      return `
+  ${MESSAGES.foodName}: ${meal.reserve.foodNames}
+  ${MESSAGES.selfName}: ${meal.reserve.selfCodeName}
+  ${MESSAGES.day}: ${dayTranslated} ${dateJStr}
+      `;
+    })
+    .flat();
 };
 
 export const formatReservedButton = ({ mealTypes, dayTranslated }: Reserve, index: number) => {
   if (!mealTypes) {
     return;
   }
-  const [meal] = mealTypes;
-  const dateTime = new Date(meal.reserve.programDate).getTime();
-  return [
-    Markup.button.callback(
-      `${index + 1}: ${dayTranslated}-${meal.reserve.foodNames}`,
-      `lostCode-${meal.reserve.selfId}-${meal.reserve.id}-${dateTime}`,
-    ),
-  ];
+  return mealTypes
+    .map(meal => {
+      const dateTime = new Date(meal.reserve.programDate).getTime();
+      return [
+        Markup.button.callback(
+          `${index + 1}: ${dayTranslated}-${meal.reserve.foodNames}`,
+          `lostCode-${meal.reserve.selfId}-${meal.reserve.id}-${dateTime}`,
+        ),
+      ];
+    })
+    .flat();
 };
 
 const normalizeReserved = (data: Reservations) => {
