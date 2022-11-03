@@ -83,7 +83,7 @@ class TelegramBot {
   }
 
   private help: MiddlewareFn<Context<Update>> = ctx => {
-    ctx.replyWithMarkdown(MESSAGES.help);
+    ctx.replyWithMarkdown(MESSAGES.help + MESSAGES.tag);
   };
 
   private handleLogout: MiddlewareFn<Context<Update>> = async ctx => {
@@ -173,7 +173,7 @@ class TelegramBot {
   };
 
   private handleAutoReserve: MiddlewareFn<Context<Update>> = async (ctx, next) => {
-    return ctx.reply(MESSAGES.notAvailable, mainKeyboard);
+    return ctx.reply(MESSAGES.notAvailable + MESSAGES.tag, mainKeyboard);
     try {
       const { text, data } = await this.userService.getAutoReserveStatus(ctx.from.id);
       ctx.replyWithMarkdown(text + MESSAGES.tag, autoReserveKeyboard(data.autoReserve));
