@@ -174,11 +174,12 @@ class TelegramBot {
   };
 
   private sendMessageToAll: MiddlewareFn<Context<Update>> = async ctx => {
-    if (!ctx.from.id in ADMINS) return;
+    if (!ADMINS.includes(ctx.from.id)) return;
     const text = MESSAGES.reserveNextWeekHeadsup;
     const users = await this.userService.getAllUser();
     users.forEach(user => {
-      ctx.telegram.sendMessage(user.id, text, mainKeyboard).catch(err => logger.error(err));
+      if (!ADMINS.includes(user.telegramId)) return;
+      ctx.telegram.sendMessage(user.telegramId, text, { parse_mode: 'Markdown', ...reserveListKeyboad }).catch(err => logger.error(err));
     });
   };
 
