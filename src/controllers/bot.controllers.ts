@@ -50,6 +50,7 @@ class TelegramBot {
     bot.command('show_reserves', this.handleNewReserve);
     bot.command('reserve', this.handleNewReserve);
     bot.command('exit', this.handleLogout);
+    bot.command('send_next_week_reserve', this.sendMessageToAll);
 
     bot.hears(MESSAGES.logout, this.handleLogout);
     bot.hears(MESSAGES.reserve, this.handleNewReserve);
@@ -170,6 +171,15 @@ class TelegramBot {
       return ctx.replyWithMarkdown(MESSAGES.supportMessageSent + MESSAGES.tag, backKeyboard);
     }
     ctx.replyWithMarkdown(MESSAGES.error + MESSAGES.tag, backKeyboard);
+  };
+
+  private sendMessageToAll: MiddlewareFn<Context<Update>> = async ctx => {
+    if (!ctx.from.id in ADMINS) return;
+    const text = MESSAGES.reserveNextWeekHeadsup;
+    const users = await this.userService.getAllUser();
+    users.forEach(user => {
+      ctx.telegram.sendMessage(user.id, text, mainKeyboard).catch(err => logger.error(err));
+    });
   };
 
   private handleAutoReserve: MiddlewareFn<Context<Update>> = async (ctx, next) => {
