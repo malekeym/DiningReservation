@@ -19,5 +19,4 @@ export const {
   BOT_TOKEN,
   SECRET_SALT,
   INITIALIZATION_VECTOR,
-  MONITORING_GROUP_ID,
 } = process.env;

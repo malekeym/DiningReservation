@@ -15,7 +15,6 @@ import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
 import TelegramBot from './controllers/bot.controllers';
-import monitoringBot from './services/cron.service';
 
 class App {
   public app: express.Application;
@@ -33,7 +32,6 @@ class App {
     this.initializeSwagger();
     this.initializeErrorHandling();
     this.initializeBot();
-    monitoringBot(this.bot);
   }
 
   public listen() {
