@@ -178,7 +178,6 @@ class TelegramBot {
     const text = MESSAGES.reserveNextWeekHeadsup;
     const users = await this.userService.getAllUser();
     users.forEach(user => {
-      if (!ADMINS.includes(user.telegramId)) return;
       ctx.telegram.sendMessage(user.telegramId, text, { parse_mode: 'Markdown', ...reserveListKeyboad }).catch(err => logger.error(err));
     });
   };
