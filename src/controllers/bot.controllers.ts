@@ -146,7 +146,7 @@ class TelegramBot {
         const { first_name } = await this.authService.loginToSamad(username, ctx.message.text, ctx.message.from.id, universityId);
         this.storage.removeState(ctx.from);
         return ctx.replyWithMarkdown(
-          `👋🏻 سلام *${first_name}*\nبه ربات رزرو خودکار غذا سلف دانشگاه خوش اومدی.\n\n🔻 یکی از دکمه های زیر را انتخاب کن.` + MESSAGES.tag,
+          `👋🏻 سلام *${first_name}*!\nبه ربات رزرو خودکار غذای سلف دانشگاه خوش اومدی.\n\n🔻 یکی از دکمه‌های زیر رو انتخاب کن.` + MESSAGES.tag,
           mainKeyboard,
         );
       } catch (error) {

@@ -9,10 +9,10 @@ export const ONE_SECONDS = 1_000;
 
 export const WEEK_DAYS = {
   Saturday: 'شنبه',
-  Sunday: 'یکشنبه',
+  Sunday: 'یک‌شنبه',
   Monday: 'دوشنبه',
-  Tuesday: 'سه شنبه',
+  Tuesday: 'سه‌شنبه',
   Wednesday: 'چهارشنبه',
-  Thursday: 'پنجشنبه',
+  Thursday: 'پنج‌شنبه',
   Friday: 'جمعه',
 };
