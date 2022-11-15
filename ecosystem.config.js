@@ -23,6 +23,7 @@
         PORT: 3000,
         NODE_ENV: 'production',
       },
+	cron_restart: "* */4 * * *"
     },
     {
       name: 'dev', // pm2 start App name

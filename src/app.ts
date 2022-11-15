@@ -61,9 +61,7 @@ class App {
       useUnifiedTopology: true,
       useCreateIndex: true,
       useFindAndModify: false,
-    })
-      .then(instance => console.log(instance))
-      .catch(err => console.error(err));
+    }).catch(err => console.error(err));
   }
 
   private initializeMiddlewares() {

@@ -137,6 +137,10 @@ class UserService {
     const data = await this.users.updateOne({ telegramId }, { autoReservesDay: Array.from(days) }).exec();
     return { data, isAdded: days.has(day) };
   };
+
+  public getAllUser = async () => {
+    return this.users.find();
+  };
 }
 
 export default UserService;
