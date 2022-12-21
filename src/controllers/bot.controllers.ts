@@ -195,8 +195,10 @@ class TelegramBot {
   private customAdminMessage: MiddlewareFn<Context<Update>> = async ctx => {
     if (!ADMINS.includes(ctx.from.id)) return;
     this.storage.setState(ctx.from, ADMIN_SEND_MESSAGE);
+    ctx.reply(MESSAGES.adminMessage).catch(err => logger.error(err));
     setTimeout(() => {
       if (this.storage.getState(ctx.from).state === ADMIN_SEND_MESSAGE) {
+        ctx.reply(MESSAGES.adminMessageCancel).catch(err => logger.error(err));
         this.storage.removeState(ctx.from);
       }
     }, 2_000);
@@ -205,6 +207,7 @@ class TelegramBot {
   private sendMessageToAll = async (ctx: Context<Update>, text?: string) => {
     if (!ADMINS.includes(ctx.from.id) || text) return;
     const users = await this.userService.getAllUser();
+    logger.info(`Admin: ${ctx.from.first_name} sending message to ${users.length} users`);
     users.forEach(user => {
       ctx.telegram.sendMessage(user.telegramId, text, { parse_mode: 'Markdown', ...reserveListKeyboad }).catch(err => logger.error(err));
     });
