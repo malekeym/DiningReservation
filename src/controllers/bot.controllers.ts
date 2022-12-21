@@ -205,7 +205,7 @@ class TelegramBot {
   };
 
   private sendMessageToAll = async (ctx: Context<Update>, text?: string) => {
-    if (!ADMINS.includes(ctx.from.id) || text) return;
+    if (!ADMINS.includes(ctx.from.id) || typeof text !== 'string') return;
     const users = await this.userService.getAllUser();
     ctx.reply(`Admin: ${ctx.from.first_name} sending message to ${users.length} users`).catch(err => logger.error(err));
     users.forEach(user => {
