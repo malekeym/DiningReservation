@@ -201,7 +201,7 @@ class TelegramBot {
         ctx.reply(MESSAGES.adminMessageCancel).catch(err => logger.error(err));
         this.storage.removeState(ctx.from);
       }
-    }, 2_000);
+    }, 10_000);
   };
 
   private sendMessageToAll = async (ctx: Context<Update>, text?: string) => {

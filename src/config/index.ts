@@ -3,6 +3,7 @@ config({ path: `.env.${process.env.NODE_ENV || 'development'}.local` });
 
 export const CREDENTIALS = process.env.CREDENTIALS === 'true';
 export const ADMINS: Array<number> = JSON.parse(process.env.ADMINS || '[]');
+export const ADMIN_TIMEOUT_MESSAGE = Number(process.env.ADMIN_TIMEOUT_MESSAGE) || 10_000;
 export const {
   NODE_ENV,
   PORT,
