@@ -50,11 +50,8 @@ services:
       - "redisnet"
     volumes:
       - ./data:/data
-    restart: always
     env_file:
       - .env.production.local
-    networks:
-      - redisnet
 
 networks:
   redisnet: 

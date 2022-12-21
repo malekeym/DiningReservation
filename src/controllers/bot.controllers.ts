@@ -1,6 +1,15 @@
 import { ADMINS } from '@/config';
 import MESSAGES, { DAYS, UNIVERSITIES } from '@/constants/messages';
-import { AUTO_RESERVE, GET_SUPPORT_MESSAGE, GET_PASSWORD, GET_SUPPORT, GET_USER_NAME, LOADING, GET_UNIVERSITY } from '@/constants/states';
+import {
+  AUTO_RESERVE,
+  GET_SUPPORT_MESSAGE,
+  GET_PASSWORD,
+  GET_SUPPORT,
+  GET_USER_NAME,
+  LOADING,
+  GET_UNIVERSITY,
+  ADMIN_SEND_MESSAGE,
+} from '@/constants/states';
 import { ONE_WEEK } from '@/constants/time';
 import AuthService from '@/services/auth.service';
 import ForgetCodeService from '@/services/forgetCodes.service';
@@ -50,7 +59,8 @@ class TelegramBot {
     bot.command('show_reserves', this.handleNewReserve);
     bot.command('reserve', this.handleNewReserve);
     bot.command('exit', this.handleLogout);
-    bot.command('send_next_week_reserve', this.sendMessageToAll);
+    bot.command('send_next_week_reserve', this.sendHeadsupMessage);
+    bot.command('send_message_to_all', this.customAdminMessage);
 
     bot.hears(MESSAGES.logout, this.handleLogout);
     bot.hears(MESSAGES.reserve, this.handleNewReserve);
@@ -127,6 +137,11 @@ class TelegramBot {
 
   private handleLoginCheck: MiddlewareFn<Context<Update>> = async ctx => {
     const { state, username, universityId } = this.storage.getState(ctx.from);
+    if (ADMINS.includes(ctx.from.id) && state === ADMIN_SEND_MESSAGE) {
+      this.storage.removeState(ctx.from);
+      //@ts-expect-error we should why text not exist on context
+      return this.sendMessageToAll(ctx, ctx.message.text);
+    }
     if (state === GET_UNIVERSITY) {
       //@ts-expect-error we should why text not exist on context
       const universityId = Object.keys(UNIVERSITIES).find(key => UNIVERSITIES[key] === ctx.message.text);
@@ -173,9 +188,22 @@ class TelegramBot {
     ctx.replyWithMarkdown(MESSAGES.error + MESSAGES.tag, backKeyboard);
   };
 
-  private sendMessageToAll: MiddlewareFn<Context<Update>> = async ctx => {
+  private sendHeadsupMessage: MiddlewareFn<Context<Update>> = async ctx => {
+    this.sendMessageToAll(ctx, MESSAGES.reserveNextWeekHeadsup);
+  };
+
+  private customAdminMessage: MiddlewareFn<Context<Update>> = async ctx => {
     if (!ADMINS.includes(ctx.from.id)) return;
-    const text = MESSAGES.reserveNextWeekHeadsup;
+    this.storage.setState(ctx.from, ADMIN_SEND_MESSAGE);
+    setTimeout(() => {
+      if (this.storage.getState(ctx.from).state === ADMIN_SEND_MESSAGE) {
+        this.storage.removeState(ctx.from);
+      }
+    }, 2_000);
+  };
+
+  private sendMessageToAll = async (ctx: Context<Update>, text?: string) => {
+    if (!ADMINS.includes(ctx.from.id) || text) return;
     const users = await this.userService.getAllUser();
     users.forEach(user => {
       ctx.telegram.sendMessage(user.telegramId, text, { parse_mode: 'Markdown', ...reserveListKeyboad }).catch(err => logger.error(err));
