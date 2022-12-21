@@ -1,4 +1,4 @@
-import { ADMINS } from '@/config';
+import { ADMINS, ADMIN_TIMEOUT_MESSAGE } from '@/config';
 import MESSAGES, { DAYS, UNIVERSITIES } from '@/constants/messages';
 import {
   AUTO_RESERVE,
@@ -201,13 +201,13 @@ class TelegramBot {
         ctx.reply(MESSAGES.adminMessageCancel).catch(err => logger.error(err));
         this.storage.removeState(ctx.from);
       }
-    }, 10_000);
+    }, ADMIN_TIMEOUT_MESSAGE);
   };
 
   private sendMessageToAll = async (ctx: Context<Update>, text?: string) => {
     if (!ADMINS.includes(ctx.from.id) || text) return;
     const users = await this.userService.getAllUser();
-    logger.info(`Admin: ${ctx.from.first_name} sending message to ${users.length} users`);
+    ctx.reply(`Admin: ${ctx.from.first_name} sending message to ${users.length} users`).catch(err => logger.error(err));
     users.forEach(user => {
       ctx.telegram.sendMessage(user.telegramId, text, { parse_mode: 'Markdown', ...reserveListKeyboad }).catch(err => logger.error(err));
     });
